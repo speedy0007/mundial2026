@@ -92,4 +92,4 @@ return(
 <div style={{textAlign:"center",color:"#2a3548",fontSize:9,padding:"10px 0"}}>Poisson ELO xG H2H Estilos Mundial 2026</div>
 </div>
 );
-  }
+}
