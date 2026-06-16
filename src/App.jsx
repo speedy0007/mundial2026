@@ -1,4 +1,5 @@
 import{useState}from"react";
+const VERSION="v2.5 • 16 Jun 2026";
 
 // Forma previa al mundial (últimos 5 partidos — W=ganó, D=empató, L=perdió)
 const PREFORMA={
@@ -54,17 +55,32 @@ const PREFORMA={
 
 // Rating árbitros: 1=permisivo(más goles), -1=estricto(menos goles)
 const ARBITROS={
-  "César Ramos":0,
-  "Erick Miranda":0,
-  "Ismail Elfath":1,
-  "Felix Zwayer":-1,
-  "Szymon Marciniak":-1,
-  "Clément Turpin":0,
-  "Raphael Claus":1,
-  "Wilton Sampaio":1,
-  "Ivan Barton":0,
-  "Facundo Tello":1,
   "Sin especificar":0,
+  // América
+  "César Ramos (MEX)":0,
+  "Erick Miranda (MEX)":0,
+  "Ismail Elfath (USA)":1,
+  "Ivan Barton (SLV)":0,
+  "Facundo Tello (ARG)":1,
+  "Wilton Sampaio (BRA)":1,
+  "Raphael Claus (BRA)":1,
+  "Piero Maza (CHI)":0,
+  "Jesus Valenzuela (VEN)":0,
+  // Europa  
+  "Felix Zwayer (GER)":-1,
+  "Szymon Marciniak (POL)":-1,
+  "Clément Turpin (FRA)":0,
+  "Danny Makkelie (NED)":0,
+  "Anthony Taylor (ENG)":-1,
+  "Michael Oliver (ENG)":-1,
+  "Slavko Vincic (SVN)":0,
+  "Daniele Orsato (ITA)":0,
+  "Carlos del Cerro (ESP)":-1,
+  // Africa/Asia
+  "Mustapha Ghorbal (ALG)":0,
+  "Abdulrahman Al-Jassim (QAT)":0,
+  "Alireza Faghani (AUS)":0,
+  "Ma Ning (CHN)":0,
 };
 
 const T={"Argentina":{e:2113,xG:2.0,xA:0.9,fl:"🇦🇷",a:9,d:9,s:"pos"},"Francia":{e:2063,xG:1.9,xA:1.0,fl:"🇫🇷",a:9,d:8,s:"pos"},"España":{e:2171,xG:1.8,xA:0.8,fl:"🇪🇸",a:8,d:9,s:"pos"},"Inglaterra":{e:2042,xG:1.7,xA:1.0,fl:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",a:8,d:8,s:"mix"},"Portugal":{e:1976,xG:1.7,xA:1.0,fl:"🇵🇹",a:8,d:7,s:"mix"},"Brasil":{e:1979,xG:1.7,xA:1.0,fl:"🇧🇷",a:8,d:8,s:"pos"},"Países Bajos":{e:1959,xG:1.6,xA:1.1,fl:"🇳🇱",a:8,d:7,s:"mix"},"Marruecos":{e:1940,xG:1.3,xA:0.8,fl:"🇲🇦",a:6,d:9,s:"blq"},"Bélgica":{e:1849,xG:1.6,xA:1.1,fl:"🇧🇪",a:7,d:7,s:"pos"},"Alemania":{e:1910,xG:1.6,xA:1.1,fl:"🇩🇪",a:8,d:7,s:"mix"},"Croacia":{e:1933,xG:1.4,xA:1.0,fl:"🇭🇷",a:6,d:7,s:"mix"},"Colombia":{e:1998,xG:1.5,xA:1.1,fl:"🇨🇴",a:7,d:7,s:"mix"},"Senegal":{e:1869,xG:1.4,xA:1.1,fl:"🇸🇳",a:7,d:7,s:"mix"},"México":{e:1820,xG:1.3,xA:1.2,fl:"🇲🇽",a:6,d:6,s:"mix"},"Estados Unidos":{e:1780,xG:1.3,xA:1.2,fl:"🇺🇸",a:7,d:6,s:"mix"},"Uruguay":{e:1890,xG:1.4,xA:1.0,fl:"🇺🇾",a:6,d:8,s:"blq"},"Japón":{e:1879,xG:1.4,xA:1.1,fl:"🇯🇵",a:7,d:7,s:"cnt"},"Suiza":{e:1897,xG:1.4,xA:1.0,fl:"🇨🇭",a:6,d:7,s:"mix"},"Ecuador":{e:1933,xG:1.4,xA:1.1,fl:"🇪🇨",a:7,d:7,s:"mix"},"Noruega":{e:1922,xG:1.5,xA:1.2,fl:"🇳🇴",a:8,d:6,s:"mix"},"Suecia":{e:1890,xG:1.5,xA:1.2,fl:"🇸🇪",a:7,d:7,s:"mix"},"Turquía":{e:1880,xG:1.4,xA:1.2,fl:"🇹🇷",a:7,d:6,s:"mix"},"Austria":{e:1820,xG:1.3,xA:1.2,fl:"🇦🇹",a:7,d:6,s:"mix"},"Corea del Sur":{e:1790,xG:1.2,xA:1.2,fl:"🇰🇷",a:6,d:6,s:"mix"},"Australia":{e:1750,xG:1.2,xA:1.3,fl:"🇦🇺",a:6,d:6,s:"cnt"},"Canadá":{e:1770,xG:1.3,xA:1.3,fl:"🇨🇦",a:6,d:6,s:"mix"},"Escocia":{e:1760,xG:1.3,xA:1.2,fl:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",a:6,d:7,s:"mix"},"Paraguay":{e:1700,xG:1.1,xA:1.3,fl:"🇵🇾",a:5,d:6,s:"blq"},"Argelia":{e:1680,xG:1.2,xA:1.2,fl:"🇩🇿",a:5,d:6,s:"mix"},"Arabia Saudita":{e:1640,xG:1.1,xA:1.4,fl:"🇸🇦",a:5,d:5,s:"blq"},"Túnez":{e:1630,xG:1.1,xA:1.3,fl:"🇹🇳",a:5,d:6,s:"blq"},"Egipto":{e:1620,xG:1.1,xA:1.3,fl:"🇪🇬",a:5,d:6,s:"blq"},"Irán":{e:1610,xG:1.0,xA:1.2,fl:"🇮🇷",a:5,d:6,s:"blq"},"Ghana":{e:1600,xG:1.1,xA:1.4,fl:"🇬🇭",a:5,d:5,s:"mix"},"Costa de Marfil":{e:1590,xG:1.1,xA:1.4,fl:"🇨🇮",a:6,d:5,s:"cnt"},"DR Congo":{e:1570,xG:1.1,xA:1.4,fl:"🇨🇩",a:5,d:5,s:"mix"},"Bosnia y Herzegovina":{e:1560,xG:1.1,xA:1.4,fl:"🇧🇦",a:5,d:5,s:"mix"},"Chequia":{e:1540,xG:1.0,xA:1.3,fl:"🇨🇿",a:5,d:5,s:"mix"},"Jordania":{e:1400,xG:0.8,xA:1.5,fl:"🇯🇴",a:4,d:4,s:"blq"},"Uzbekistán":{e:1420,xG:0.9,xA:1.4,fl:"🇺🇿",a:4,d:4,s:"mix"},"Qatar":{e:1500,xG:1.0,xA:1.4,fl:"🇶🇦",a:5,d:5,s:"blq"},"Panamá":{e:1480,xG:0.9,xA:1.5,fl:"🇵🇦",a:4,d:5,s:"blq"},"Irak":{e:1450,xG:0.9,xA:1.5,fl:"🇮🇶",a:4,d:4,s:"blq"},"Cabo Verde":{e:1460,xG:1.0,xA:1.5,fl:"🇨🇻",a:4,d:5,s:"blq"},"Sudáfrica":{e:1490,xG:1.0,xA:1.4,fl:"🇿🇦",a:5,d:5,s:"mix"},"Nueva Zelanda":{e:1380,xG:0.8,xA:1.6,fl:"🇳🇿",a:3,d:4,s:"blq"},"Curazao":{e:1350,xG:0.7,xA:1.6,fl:"🇨🇼",a:3,d:3,s:"mix"},"Haití":{e:1330,xG:0.7,xA:1.7,fl:"🇭🇹",a:3,d:3,s:"blq"}};
@@ -78,7 +94,7 @@ function calcForma(eq){
   let pts=0,gf=0,gc=0,fm=[];
   ps.forEach(r=>{const isH=r.h===eq,mg=isH?r.gh:r.ga,og=isH?r.ga:r.gh;gf+=mg;gc+=og;if(mg>og){pts+=3;fm.push("W");}else if(mg===og){pts+=1;fm.push("D");}else fm.push("L");});
   // Si no hay partidos en el mundial, usar forma previa
-  if(fm.length===0){const pf=PREFORMA[eq]||[];return{pts:0,gf:0,gc:0,fm:pf.slice(0,3),n:0,pre:true};}
+  if(fm.length===0){const pf=PREFORMA[eq]||[];return{pts:0,gf:0,gc:0,fm:pf.slice(0,5),n:0,pre:true};}
   return{pts,gf,gc,fm,n:ps.length,pre:false};
 }
 
@@ -112,7 +128,12 @@ function calc(s1,s2,q1,qx,q2,hj,hw1,hd,hw2,arb,presion1,presion2){
   const ra=ARBITROS[arb]||0;
   if(ra===1){l1*=1.05;l2*=1.05;}
   if(ra===-1){l1*=0.95;l2*=0.95;}
-  l1=Math.max(0.2,Math.min(4,l1));l2=Math.max(0.2,Math.min(4,l2));
+  // Cap lambdas - max 2.8 para evitar marcadores irreales
+  l1=Math.max(0.3,Math.min(2.8,l1));l2=Math.max(0.3,Math.min(2.8,l2));
+  // Dixon-Coles: corregir prob de 0-0 y 1-1 que Poisson subestima
+  // Factor tau para partidos muy desiguales
+  const dElo=Math.abs(s1.e-s2.e);
+  if(dElo>300){const adj=1-(dElo-300)/2000;l2=Math.max(0.3,l2*adj);}
   let pH=0,pD=0,pA=0,m15=0,m25=0,btts=0;
   for(let i=0;i<=6;i++)for(let j=0;j<=6;j++){const p=pois(l1,i)*pois(l2,j);if(i>j)pH+=p;else if(i===j)pD+=p;else pA+=p;if(i+j>1)m15+=p;if(i+j>2)m25+=p;if(i>0&&j>0)btts+=p;}
   if(q1>0&&qx>0&&q2>0){const r1=1/q1,rx=1/qx,r2=1/q2,rt=r1+rx+r2;pH=pH*0.6+(r1/rt)*0.4;pD=pD*0.6+(rx/rt)*0.4;pA=pA*0.6+(r2/rt)*0.4;}
@@ -124,21 +145,24 @@ function calc(s1,s2,q1,qx,q2,hj,hw1,hd,hw2,arb,presion1,presion2){
 }
 
 
-function monteCarlo(l1, l2, n=10000){
+function randPoisson(lambda){
+  // Knuth algorithm para generar variable aleatoria Poisson
+  const L=Math.exp(-lambda);
+  let k=0,p=1;
+  do{k++;p*=Math.random();}while(p>L);
+  return k-1;
+}
+
+function monteCarlo(l1,l2,n=10000){
   let wH=0,wD=0,wA=0;
   const marcadores={};
   for(let i=0;i<n;i++){
-    // Simular goles con distribución de Poisson
-    let g1=0,g2=0;
-    let u=Math.random(),p=Math.exp(-l1),cum=p;
-    while(u>cum){g1++;cum+=p*Math.pow(l1,g1)/(Array.from({length:g1},(_, i)=>i+1).reduce((a,b)=>a*b,1));}
-    u=Math.random();p=Math.exp(-l2);cum=p;
-    while(u>cum){g2++;cum+=p*Math.pow(l2,g2)/(Array.from({length:g2},(_, i)=>i+1).reduce((a,b)=>a*b,1));}
+    const g1=Math.min(randPoisson(l1),8);
+    const g2=Math.min(randPoisson(l2),8);
     if(g1>g2)wH++;else if(g1===g2)wD++;else wA++;
-    const key=`${Math.min(g1,5)}-${Math.min(g2,5)}`;
+    const key=`${g1}-${g2}`;
     marcadores[key]=(marcadores[key]||0)+1;
   }
-  // Top 5 marcadores más probables
   const top=Object.entries(marcadores).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>({score:k,prob:v/n}));
   return{pH:wH/n,pD:wD/n,pA:wA/n,top,n};
 }
@@ -146,6 +170,14 @@ function monteCarlo(l1, l2, n=10000){
 const C="#060a12",G="#00ff88",Y="#ffd200",B="#60a5fa",P="#c084fc";
 const sn={pos:"Posesion",blq:"Bloque",cnt:"Contragolpe",mix:"Mixto"};
 const Ba=({v,c})=><div style={{background:"#1a1f2e",borderRadius:4,height:7,overflow:"hidden"}}><div style={{width:`${Math.min(v*100,100)}%`,height:"100%",background:c,borderRadius:4}}/></div>;
+// Total goles en el mundial por equipo
+function totalGoles(eq){
+  const ps=RES.filter(r=>r.h===eq||r.a===eq);
+  let gf=0,gc=0;
+  ps.forEach(r=>{const h=r.h===eq;gf+=h?r.gh:r.ga;gc+=h?r.ga:r.gh;});
+  return{gf,gc,n:ps.length};
+}
+
 const Fi=({l,v,c})=><div style={{marginBottom:9}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:12,color:c,fontWeight:600}}>{l}</span><span style={{fontSize:13,fontWeight:800,color:c}}>{(v*100).toFixed(1)}%</span></div><Ba v={v} c={c}/></div>;
 const FT=({r})=>{const m={W:["#00ff88","#00ff8818"],D:["#ffd200","#ffd20018"],L:["#ff6060","#ff606018"]};const[c,b]=m[r]||["#555","#222"];return <span style={{width:18,height:18,borderRadius:3,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:800,color:c,background:b}}>{r}</span>;};
 
@@ -208,12 +240,14 @@ export default function App(){
                 <select value={t1} onChange={e=>{setT1(e.target.value);setRes(null);setMc(null);}} style={sel}>{teams.map(t=><option key={t} value={t}>{T[t].fl} {t}</option>)}</select>
                 <div style={{fontSize:9,color:P,marginTop:3}}>{sn[s1.s]} ELO {s1.e}</div>
                 <div style={{display:"flex",gap:2,marginTop:3}}>{f1.fm.map((f,i)=><FT key={i} r={f}/>)}<span style={{fontSize:9,color:f1.pre?"#ffd200":"#64748b",marginLeft:3}}>{f1.pre?"(prev)":f1.pts+"pts"}</span></div>
+                {(()=>{const tg=totalGoles(t1);return tg.n>0?<div style={{fontSize:9,color:"#4a5568",marginTop:2}}>GF:{tg.gf} GC:{tg.gc} en {tg.n}PJ</div>:null;})()}
               </div>
               <div style={{display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{width:28,height:28,borderRadius:14,background:"#1e2a3a",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:Y}}>VS</div></div>
               <div>
                 <select value={t2} onChange={e=>{setT2(e.target.value);setRes(null);setMc(null);}} style={sel}>{teams.map(t=><option key={t} value={t}>{T[t].fl} {t}</option>)}</select>
                 <div style={{fontSize:9,color:P,marginTop:3}}>{sn[s2.s]} ELO {s2.e}</div>
                 <div style={{display:"flex",gap:2,marginTop:3}}>{f2.fm.map((f,i)=><FT key={i} r={f}/>)}<span style={{fontSize:9,color:f2.pre?"#ffd200":"#64748b",marginLeft:3}}>{f2.pre?"(prev)":f2.pts+"pts"}</span></div>
+                {(()=>{const tg=totalGoles(t2);return tg.n>0?<div style={{fontSize:9,color:"#4a5568",marginTop:2}}>GF:{tg.gf} GC:{tg.gc} en {tg.n}PJ</div>:null;})()}
               </div>
             </div>
 
@@ -338,7 +372,7 @@ export default function App(){
         </div>}
 
       </div>
-      <div style={{textAlign:"center",padding:12,borderTop:"1px solid #0d1117",color:"#2a3548",fontSize:9}}>Poisson ELO xG H2H Forma Previa Arbitro Presion Mundial 2026</div>
+      <div style={{textAlign:"center",padding:12,borderTop:"1px solid #1e2a3a"}}><span style={{fontSize:11,fontWeight:700,color:"#00ff88",background:"#00ff8812",padding:"3px 12px",borderRadius:20,border:"1px solid #00ff8830"}}>{VERSION}</span><div style={{fontSize:9,color:"#2a3548",marginTop:6}}>Poisson · ELO · xG · H2H · Monte Carlo · Mundial 2026</div></div>
     </div>
   );
 }
