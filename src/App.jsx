@@ -1,5 +1,5 @@
 import{useState}from"react";
-const VERSION="v2.5 • 16 Jun 2026";
+const VERSION="v2.9 • 16 Jun 2026";
 
 // Forma previa al mundial (últimos 5 partidos — W=ganó, D=empató, L=perdió)
 const PREFORMA={
@@ -128,12 +128,19 @@ function calc(s1,s2,q1,qx,q2,hj,hw1,hd,hw2,arb,presion1,presion2){
   const ra=ARBITROS[arb]||0;
   if(ra===1){l1*=1.05;l2*=1.05;}
   if(ra===-1){l1*=0.95;l2*=0.95;}
-  // Cap lambdas - max 2.8 para evitar marcadores irreales
-  l1=Math.max(0.3,Math.min(2.8,l1));l2=Math.max(0.3,Math.min(2.8,l2));
-  // Dixon-Coles: corregir prob de 0-0 y 1-1 que Poisson subestima
-  // Factor tau para partidos muy desiguales
+  // Cap lambdas dinamico segun diferencia de ELO
+  // Partidos equilibrados: max 2.2 | Muy desiguales: max 1.8
   const dElo=Math.abs(s1.e-s2.e);
-  if(dElo>300){const adj=1-(dElo-300)/2000;l2=Math.max(0.3,l2*adj);}
+  const maxL=dElo>400?1.8:dElo>200?2.0:2.2;
+  const minL=0.3;
+  // Ajuste adicional para el equipo debil en partidos muy desiguales
+  if(dElo>300){
+    const adj=1-(dElo-300)/3000;
+    if(s1.e>s2.e) l2=Math.max(minL,l2*adj);
+    else l1=Math.max(minL,l1*adj);
+  }
+  l1=Math.max(minL,Math.min(maxL,l1));
+  l2=Math.max(minL,Math.min(maxL,l2));
   let pH=0,pD=0,pA=0,m15=0,m25=0,btts=0;
   for(let i=0;i<=6;i++)for(let j=0;j<=6;j++){const p=pois(l1,i)*pois(l2,j);if(i>j)pH+=p;else if(i===j)pD+=p;else pA+=p;if(i+j>1)m15+=p;if(i+j>2)m25+=p;if(i>0&&j>0)btts+=p;}
   if(q1>0&&qx>0&&q2>0){const r1=1/q1,rx=1/qx,r2=1/q2,rt=r1+rx+r2;pH=pH*0.6+(r1/rt)*0.4;pD=pD*0.6+(rx/rt)*0.4;pA=pA*0.6+(r2/rt)*0.4;}
