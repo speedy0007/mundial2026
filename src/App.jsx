@@ -1,355 +1,183 @@
 import { useState } from "react";
 
-// ══════════════════════════════════════════════════════
-// DATOS REALES DEL MUNDIAL 2026 (xG oficiales por partido)
-// ══════════════════════════════════════════════════════
-const RESULTADOS = [
-  { home:"México",        away:"Sudáfrica",           gH:2,gA:0, xGH:1.41,xGA_r:0.07, fecha:"Jun 11",grupo:"A" },
-  { home:"Corea del Sur", away:"Chequia",              gH:2,gA:1, xGH:1.84,xGA_r:0.81, fecha:"Jun 11",grupo:"A" },
-  { home:"Canadá",        away:"Bosnia y Herzegovina", gH:1,gA:1, xGH:1.25,xGA_r:0.98, fecha:"Jun 12",grupo:"B" },
-  { home:"Estados Unidos",away:"Paraguay",             gH:4,gA:1, xGH:1.35,xGA_r:0.47, fecha:"Jun 12",grupo:"D" },
-  { home:"Qatar",         away:"Suiza",                gH:1,gA:1, xGH:0.76,xGA_r:3.24, fecha:"Jun 13",grupo:"B" },
-  { home:"Brasil",        away:"Marruecos",            gH:1,gA:1, xGH:1.23,xGA_r:1.53, fecha:"Jun 13",grupo:"C" },
-  { home:"Haití",         away:"Escocia",              gH:0,gA:1, xGH:1.21,xGA_r:1.05, fecha:"Jun 13",grupo:"C" },
-  { home:"Australia",     away:"Turquía",              gH:2,gA:0, xGH:0.77,xGA_r:1.33, fecha:"Jun 13",grupo:"D" },
-  { home:"Alemania",      away:"Curazao",              gH:7,gA:1, xGH:4.22,xGA_r:0.61, fecha:"Jun 14",grupo:"E" },
-  { home:"Países Bajos",  away:"Japón",                gH:2,gA:2, xGH:2.10,xGA_r:1.80, fecha:"Jun 14",grupo:"F" },
-  { home:"Costa de Marfil",away:"Ecuador",             gH:1,gA:0, xGH:0.90,xGA_r:1.80, fecha:"Jun 14",grupo:"E" },
-];
+const T={"Argentina":{e:2113,xG:2.0,xA:0.9,fl:"🇦🇷",a:9,d:9,s:"pos"},"Francia":{e:2063,xG:1.9,xA:1.0,fl:"🇫🇷",a:9,d:8,s:"pos"},"España":{e:2171,xG:1.8,xA:0.8,fl:"🇪🇸",a:8,d:9,s:"pos"},"Inglaterra":{e:2042,xG:1.7,xA:1.0,fl:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",a:8,d:8,s:"mix"},"Portugal":{e:1976,xG:1.7,xA:1.0,fl:"🇵🇹",a:8,d:7,s:"mix"},"Brasil":{e:1979,xG:1.7,xA:1.0,fl:"🇧🇷",a:8,d:8,s:"pos"},"Países Bajos":{e:1959,xG:1.6,xA:1.1,fl:"🇳🇱",a:8,d:7,s:"mix"},"Marruecos":{e:1940,xG:1.3,xA:0.8,fl:"🇲🇦",a:6,d:9,s:"blq"},"Bélgica":{e:1849,xG:1.6,xA:1.1,fl:"🇧🇪",a:7,d:7,s:"pos"},"Alemania":{e:1910,xG:1.6,xA:1.1,fl:"🇩🇪",a:8,d:7,s:"mix"},"Croacia":{e:1933,xG:1.4,xA:1.0,fl:"🇭🇷",a:6,d:7,s:"mix"},"Colombia":{e:1998,xG:1.5,xA:1.1,fl:"🇨🇴",a:7,d:7,s:"mix"},"Senegal":{e:1869,xG:1.4,xA:1.1,fl:"🇸🇳",a:7,d:7,s:"mix"},"México":{e:1820,xG:1.3,xA:1.2,fl:"🇲🇽",a:6,d:6,s:"mix"},"Estados Unidos":{e:1780,xG:1.3,xA:1.2,fl:"🇺🇸",a:7,d:6,s:"mix"},"Uruguay":{e:1890,xG:1.4,xA:1.0,fl:"🇺🇾",a:6,d:8,s:"blq"},"Japón":{e:1879,xG:1.4,xA:1.1,fl:"🇯🇵",a:7,d:7,s:"cnt"},"Suiza":{e:1897,xG:1.4,xA:1.0,fl:"🇨🇭",a:6,d:7,s:"mix"},"Ecuador":{e:1933,xG:1.4,xA:1.1,fl:"🇪🇨",a:7,d:7,s:"mix"},"Noruega":{e:1922,xG:1.5,xA:1.2,fl:"🇳🇴",a:8,d:6,s:"mix"},"Suecia":{e:1890,xG:1.5,xA:1.2,fl:"🇸🇪",a:7,d:7,s:"mix"},"Turquía":{e:1880,xG:1.4,xA:1.2,fl:"🇹🇷",a:7,d:6,s:"mix"},"Austria":{e:1820,xG:1.3,xA:1.2,fl:"🇦🇹",a:7,d:6,s:"mix"},"Corea del Sur":{e:1790,xG:1.2,xA:1.2,fl:"🇰🇷",a:6,d:6,s:"mix"},"Australia":{e:1750,xG:1.2,xA:1.3,fl:"🇦🇺",a:6,d:6,s:"cnt"},"Canadá":{e:1770,xG:1.3,xA:1.3,fl:"🇨🇦",a:6,d:6,s:"mix"},"Escocia":{e:1760,xG:1.3,xA:1.2,fl:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",a:6,d:7,s:"mix"},"Paraguay":{e:1700,xG:1.1,xA:1.3,fl:"🇵🇾",a:5,d:6,s:"blq"},"Argelia":{e:1680,xG:1.2,xA:1.2,fl:"🇩🇿",a:5,d:6,s:"mix"},"Arabia Saudita":{e:1640,xG:1.1,xA:1.4,fl:"🇸🇦",a:5,d:5,s:"blq"},"Túnez":{e:1630,xG:1.1,xA:1.3,fl:"🇹🇳",a:5,d:6,s:"blq"},"Egipto":{e:1620,xG:1.1,xA:1.3,fl:"🇪🇬",a:5,d:6,s:"blq"},"Irán":{e:1610,xG:1.0,xA:1.2,fl:"🇮🇷",a:5,d:6,s:"blq"},"Ghana":{e:1600,xG:1.1,xA:1.4,fl:"🇬🇭",a:5,d:5,s:"mix"},"Costa de Marfil":{e:1590,xG:1.1,xA:1.4,fl:"🇨🇮",a:6,d:5,s:"cnt"},"DR Congo":{e:1570,xG:1.1,xA:1.4,fl:"🇨🇩",a:5,d:5,s:"mix"},"Bosnia y Herzegovina":{e:1560,xG:1.1,xA:1.4,fl:"🇧🇦",a:5,d:5,s:"mix"},"Chequia":{e:1540,xG:1.0,xA:1.3,fl:"🇨🇿",a:5,d:5,s:"mix"},"Jordania":{e:1400,xG:0.8,xA:1.5,fl:"🇯🇴",a:4,d:4,s:"blq"},"Uzbekistán":{e:1420,xG:0.9,xA:1.4,fl:"🇺🇿",a:4,d:4,s:"mix"},"Qatar":{e:1500,xG:1.0,xA:1.4,fl:"🇶🇦",a:5,d:5,s:"blq"},"Panamá":{e:1480,xG:0.9,xA:1.5,fl:"🇵🇦",a:4,d:5,s:"blq"},"Irak":{e:1450,xG:0.9,xA:1.5,fl:"🇮🇶",a:4,d:4,s:"blq"},"Cabo Verde":{e:1460,xG:1.0,xA:1.5,fl:"🇨🇻",a:4,d:5,s:"blq"},"Sudáfrica":{e:1490,xG:1.0,xA:1.4,fl:"🇿🇦",a:5,d:5,s:"mix"},"Nueva Zelanda":{e:1380,xG:0.8,xA:1.6,fl:"🇳🇿",a:3,d:4,s:"blq"},"Curazao":{e:1350,xG:0.7,xA:1.6,fl:"🇨🇼",a:3,d:3,s:"mix"},"Haití":{e:1330,xG:0.7,xA:1.7,fl:"🇭🇹",a:3,d:3,s:"blq"}};
 
-const GRUPOS = {
-  A:["México","Corea del Sur","Sudáfrica","Chequia"],
-  B:["Canadá","Suiza","Qatar","Bosnia y Herzegovina"],
-  C:["Brasil","Marruecos","Escocia","Haití"],
-  D:["Estados Unidos","Australia","Paraguay","Turquía"],
-  E:["Alemania","Ecuador","Costa de Marfil","Curazao"],
-  F:["Países Bajos","Japón","Suecia","Túnez"],
-  G:["Bélgica","Irán","Egipto","Nueva Zelanda"],
-  H:["España","Uruguay","Arabia Saudita","Cabo Verde"],
-  I:["Francia","Senegal","Noruega","Irak"],
-  J:["Argentina","Austria","Argelia","Jordania"],
-  K:["Portugal","Colombia","Uzbekistán","DR Congo"],
-  L:["Inglaterra","Croacia","Panamá","Ghana"],
-};
+const teams=Object.keys(T).sort();
+function pois(l,k){let p=Math.exp(-l);for(let i=1;i<=k;i++)p*=l/i;return p;}
 
-// Stats base FIFA/ELO + capacidades
-const TEAMS = {
-  "Argentina":       {fifa:1874,elo:2113,xG:2.0,xGA:0.9,flag:"🇦🇷",atk:9,def:9,tier:1},
-  "Francia":         {fifa:1877,elo:2063,xG:1.9,xGA:1.0,flag:"🇫🇷",atk:9,def:8,tier:1},
-  "España":          {fifa:1876,elo:2171,xG:1.8,xGA:0.8,flag:"🇪🇸",atk:8,def:9,tier:1},
-  "Inglaterra":      {fifa:1825,elo:2042,xG:1.7,xGA:1.0,flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",atk:8,def:8,tier:1},
-  "Portugal":        {fifa:1763,elo:1976,xG:1.7,xGA:1.0,flag:"🇵🇹",atk:8,def:7,tier:2},
-  "Brasil":          {fifa:1761,elo:1979,xG:1.7,xGA:1.0,flag:"🇧🇷",atk:8,def:8,tier:1},
-  "Países Bajos":    {fifa:1757,elo:1959,xG:1.6,xGA:1.1,flag:"🇳🇱",atk:8,def:7,tier:2},
-  "Marruecos":       {fifa:1755,elo:1940,xG:1.3,xGA:0.8,flag:"🇲🇦",atk:6,def:9,tier:2},
-  "Bélgica":         {fifa:1734,elo:1849,xG:1.6,xGA:1.1,flag:"🇧🇪",atk:7,def:7,tier:2},
-  "Alemania":        {fifa:1730,elo:1910,xG:1.6,xGA:1.1,flag:"🇩🇪",atk:8,def:7,tier:2},
-  "Croacia":         {fifa:1717,elo:1933,xG:1.4,xGA:1.0,flag:"🇭🇷",atk:6,def:7,tier:2},
-  "Colombia":        {fifa:1693,elo:1998,xG:1.5,xGA:1.1,flag:"🇨🇴",atk:7,def:7,tier:2},
-  "Senegal":         {fifa:1688,elo:1869,xG:1.4,xGA:1.1,flag:"🇸🇳",atk:7,def:7,tier:2},
-  "México":          {fifa:1681,elo:1820,xG:1.3,xGA:1.2,flag:"🇲🇽",atk:6,def:6,tier:3},
-  "Estados Unidos":  {fifa:1673,elo:1780,xG:1.3,xGA:1.2,flag:"🇺🇸",atk:7,def:6,tier:3},
-  "Uruguay":         {fifa:1673,elo:1890,xG:1.4,xGA:1.0,flag:"🇺🇾",atk:6,def:8,tier:2},
-  "Japón":           {fifa:1660,elo:1879,xG:1.4,xGA:1.1,flag:"🇯🇵",atk:7,def:7,tier:2},
-  "Suiza":           {fifa:1649,elo:1897,xG:1.4,xGA:1.0,flag:"🇨🇭",atk:6,def:7,tier:2},
-  "Ecuador":         {fifa:1620,elo:1933,xG:1.4,xGA:1.1,flag:"🇪🇨",atk:7,def:7,tier:2},
-  "Noruega":         {fifa:1610,elo:1922,xG:1.5,xGA:1.2,flag:"🇳🇴",atk:8,def:6,tier:2},
-  "Suecia":          {fifa:1595,elo:1890,xG:1.5,xGA:1.2,flag:"🇸🇪",atk:7,def:7,tier:2},
-  "Turquía":         {fifa:1600,elo:1880,xG:1.4,xGA:1.2,flag:"🇹🇷",atk:7,def:6,tier:3},
-  "Austria":         {fifa:1580,elo:1820,xG:1.3,xGA:1.2,flag:"🇦🇹",atk:7,def:6,tier:3},
-  "Corea del Sur":   {fifa:1560,elo:1790,xG:1.2,xGA:1.2,flag:"🇰🇷",atk:6,def:6,tier:3},
-  "Australia":       {fifa:1540,elo:1750,xG:1.2,xGA:1.3,flag:"🇦🇺",atk:6,def:6,tier:3},
-  "Canadá":          {fifa:1530,elo:1770,xG:1.3,xGA:1.3,flag:"🇨🇦",atk:6,def:6,tier:3},
-  "Escocia":         {fifa:1520,elo:1760,xG:1.3,xGA:1.2,flag:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",atk:6,def:7,tier:3},
-  "Paraguay":        {fifa:1470,elo:1700,xG:1.1,xGA:1.3,flag:"🇵🇾",atk:5,def:6,tier:3},
-  "Argelia":         {fifa:1450,elo:1680,xG:1.2,xGA:1.2,flag:"🇩🇿",atk:5,def:6,tier:3},
-  "Arabia Saudita":  {fifa:1430,elo:1640,xG:1.1,xGA:1.4,flag:"🇸🇦",atk:5,def:5,tier:4},
-  "Túnez":           {fifa:1420,elo:1630,xG:1.1,xGA:1.3,flag:"🇹🇳",atk:5,def:6,tier:4},
-  "Egipto":          {fifa:1410,elo:1620,xG:1.1,xGA:1.3,flag:"🇪🇬",atk:5,def:6,tier:4},
-  "Irán":            {fifa:1400,elo:1610,xG:1.0,xGA:1.2,flag:"🇮🇷",atk:5,def:6,tier:4},
-  "Ghana":           {fifa:1390,elo:1600,xG:1.1,xGA:1.4,flag:"🇬🇭",atk:5,def:5,tier:4},
-  "Costa de Marfil": {fifa:1380,elo:1590,xG:1.1,xGA:1.4,flag:"🇨🇮",atk:6,def:5,tier:3},
-  "DR Congo":        {fifa:1370,elo:1570,xG:1.1,xGA:1.4,flag:"🇨🇩",atk:5,def:5,tier:4},
-  "Bosnia y Herzegovina":{fifa:1360,elo:1560,xG:1.1,xGA:1.4,flag:"🇧🇦",atk:5,def:5,tier:4},
-  "Chequia":         {fifa:1340,elo:1540,xG:1.0,xGA:1.3,flag:"🇨🇿",atk:5,def:5,tier:4},
-  "Jordania":        {fifa:1200,elo:1400,xG:0.8,xGA:1.5,flag:"🇯🇴",atk:4,def:4,tier:4},
-  "Uzbekistán":      {fifa:1220,elo:1420,xG:0.9,xGA:1.4,flag:"🇺🇿",atk:4,def:4,tier:4},
-  "Qatar":           {fifa:1320,elo:1500,xG:1.0,xGA:1.4,flag:"🇶🇦",atk:5,def:5,tier:4},
-  "Panamá":          {fifa:1300,elo:1480,xG:0.9,xGA:1.5,flag:"🇵🇦",atk:4,def:5,tier:4},
-  "Irak":            {fifa:1250,elo:1450,xG:0.9,xGA:1.5,flag:"🇮🇶",atk:4,def:4,tier:4},
-  "Cabo Verde":      {fifa:1280,elo:1460,xG:1.0,xGA:1.5,flag:"🇨🇻",atk:4,def:5,tier:4},
-  "Sudáfrica":       {fifa:1310,elo:1490,xG:1.0,xGA:1.4,flag:"🇿🇦",atk:5,def:5,tier:4},
-  "Nueva Zelanda":   {fifa:1150,elo:1380,xG:0.8,xGA:1.6,flag:"🇳🇿",atk:3,def:4,tier:4},
-  "Curazao":         {fifa:1100,elo:1350,xG:0.7,xGA:1.6,flag:"🇨🇼",atk:3,def:3,tier:4},
-  "Haití":           {fifa:1080,elo:1330,xG:0.7,xGA:1.7,flag:"🇭🇹",atk:3,def:3,tier:4},
-};
-
-// Lección del mundial: resultados que definen las sorpresas
-const SORPRESAS = [
-  "Australia 2-0 Turquía (xG: 0.77 vs 1.33 — ganó el que menos mereció)",
-  "Qatar 1-1 Suiza (xG: 0.76 vs 3.24 — Qatar se salvó del colapso)",
-  "Costa de Marfil 1-0 Ecuador (xG: 0.90 vs 1.80 — Ecuador controló pero perdió)",
-  "Brasil 1-1 Marruecos (xG equilibrado — empate justo)",
-];
-
-const allTeams = Object.keys(TEAMS).sort();
-
-function calcForma(equipo) {
-  const ps = RESULTADOS.filter(r => r.home===equipo||r.away===equipo);
-  let pts=0,gf=0,gc=0,xGfor=0,xGcon=0,forma=[];
-  ps.forEach(r=>{
-    const isHome = r.home===equipo;
-    const myG=isHome?r.gH:r.gA, opG=isHome?r.gA:r.gH;
-    const myxG=isHome?r.xGH:r.xGA_r, opxG=isHome?r.xGA_r:r.xGH;
-    gf+=myG; gc+=opG; xGfor+=myxG; xGcon+=opxG;
-    if(myG>opG){pts+=3;forma.push("W");}
-    else if(myG===opG){pts+=1;forma.push("D");}
-    else{forma.push("L");}
-  });
-  return {pts,gf,gc,xGfor:+xGfor.toFixed(2),xGcon:+xGcon.toFixed(2),forma,partidos:ps.length};
+function calcular(s1,s2,q1,qx,q2,hj,hw1,hw2){
+  let l1=s1.xG*(10/s2.d),l2=s2.xG*(10/s1.d);
+  const de=(s1.e-s2.e)/400;
+  l1*=Math.pow(10,de*0.1);l2*=Math.pow(10,-de*0.1);
+  if(s1.s==="pos"&&(s2.s==="blq"||s2.s==="cnt")){l1*=0.80;l2*=0.85;}
+  if(s2.s==="pos"&&(s1.s==="blq"||s1.s==="cnt")){l2*=0.80;l1*=0.85;}
+  if(hj>=3){const r1=hw1/hj,r2=hw2/hj;l1*=(1+(r1-r2)*0.15);l2*=(1+(r2-r1)*0.15);}
+  l1=Math.max(0.2,Math.min(4,l1));l2=Math.max(0.2,Math.min(4,l2));
+  let pH=0,pD=0,pA=0,m15=0,m25=0,btts=0;
+  for(let i=0;i<=6;i++)for(let j=0;j<=6;j++){
+    const p=pois(l1,i)*pois(l2,j);
+    if(i>j)pH+=p;else if(i===j)pD+=p;else pA+=p;
+    if(i+j>1)m15+=p;if(i+j>2)m25+=p;if(i>0&&j>0)btts+=p;
+  }
+  if(q1>0&&qx>0&&q2>0){
+    const r1=1/q1,rx=1/qx,r2=1/q2,rt=r1+rx+r2;
+    pH=pH*0.6+(r1/rt)*0.4;pD=pD*0.6+(rx/rt)*0.4;pA=pA*0.6+(r2/rt)*0.4;
+  }
+  const tot=pH+pD+pA;pH/=tot;pD/=tot;pA/=tot;
+  const alerta=(s1.s==="pos"&&(s2.s==="blq"||s2.s==="cnt"))||(s2.s==="pos"&&(s1.s==="blq"||s1.s==="cnt"));
+  const conf=Math.max(pH,pD,pA)>0.55?"ALTA":Math.max(pH,pD,pA)>0.42?"MEDIA":"BAJA";
+  const mejor=pH>0.55?"🏆 Victoria "+s1.nombre:pA>0.55?"🏆 Victoria "+s2.nombre:(pH+pD)>0.75?"✅ Doble oportunidad 1X":(pA+pD)>0.75?"✅ Doble oportunidad X2":m15>0.72?"⚽ Más de 1.5 goles":"⚠️ Evalúa con cuotas";
+  return{pH,pD,pA,l1:+l1.toFixed(2),l2:+l2.toFixed(2),sh:Math.round(l1),sa:Math.round(l2),m15,m25,btts,hx:pH+pD,x2:pA+pD,ne:pH+pA,alerta,conf,mejor};
 }
 
-// ══════════════════════════════
-// COMPONENTES UI
-// ══════════════════════════════
-const Tag = ({c,children,size=11})=>{
-  const cols={green:["#00ff88","#00ff8818","#00ff8840"],yellow:["#ffd200","#ffd20018","#ffd20040"],red:["#ff6060","#ff606018","#ff606040"],blue:["#60a5fa","#60a5fa18","#60a5fa40"],purple:["#c084fc","#c084fc18","#c084fc40"]};
-  const [color,bg,border]=cols[c]||cols.blue;
-  return <span style={{display:"inline-flex",alignItems:"center",gap:3,padding:`2px ${size<12?8:12}px`,borderRadius:20,fontSize:size,fontWeight:700,color,background:bg,border:`1px solid ${border}`}}>{children}</span>;
-};
+const C="#060a12",G="#00ff88",Y="#ffd200",B="#60a5fa",P="#c084fc";
+const sn={pos:"Posesión",blq:"Bloque",cnt:"Contragolpe",mix:"Mixto"};
 
-const FormaTag=({r})=>{
-  const m={W:["#00ff88","#00ff8820"],D:["#ffd200","#ffd20020"],L:["#ff6060","#ff606020"]};
-  const [c,b]=m[r]||["#64748b","#1e2a3a"];
-  return <span style={{width:20,height:20,borderRadius:4,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:c,background:b,border:`1px solid ${c}30`}}>{r}</span>;
-};
+function Barra({v,c}){
+  return <div style={{background:"#1a1f2e",borderRadius:4,height:7,overflow:"hidden"}}>
+    <div style={{width:`${Math.min(v*100,100)}%`,height:"100%",background:c,borderRadius:4,transition:"width 0.5s"}}/>
+  </div>;
+}
 
-const Bar=({v,max,color="#00ff88"})=>(
-  <div style={{background:"#1a1f2e",borderRadius:4,height:8,overflow:"hidden",flex:1}}>
-    <div style={{width:`${Math.min((v/max)*100,100)}%`,height:"100%",background:color,borderRadius:4,transition:"width 1s ease",boxShadow:`0 0 6px ${color}55`}}/>
-  </div>
-);
-
-const Meter=({label,v1,v2,max=10,c1="#00ff88",c2="#60a5fa"})=>(
-  <div style={{marginBottom:10}}>
-    <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-      <span style={{fontSize:12,color:c1,fontWeight:700}}>{typeof v1==="number"&&v1%1!==0?v1.toFixed(1):v1}</span>
-      <span style={{fontSize:10,color:"#4a5568"}}>{label}</span>
-      <span style={{fontSize:12,color:c2,fontWeight:700}}>{typeof v2==="number"&&v2%1!==0?v2.toFixed(1):v2}</span>
+function Fila({l,v,c}){
+  return <div style={{marginBottom:9}}>
+    <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+      <span style={{fontSize:12,color:c,fontWeight:600}}>{l}</span>
+      <span style={{fontSize:13,fontWeight:800,color:c}}>{(v*100).toFixed(1)}%</span>
     </div>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
-      <Bar v={v1} max={max} color={c1}/>
-      <Bar v={v2} max={max} color={c2}/>
-    </div>
-  </div>
-);
+    <Barra v={v} c={c}/>
+  </div>;
+}
 
-const Section=({title,children,accent="#1e2a3a"})=>(
-  <div style={{background:"#0a0f1e",border:`1px solid ${accent}`,borderRadius:14,padding:18,marginBottom:14}}>
-    {title&&<div style={{fontSize:10,color:"#4a5568",letterSpacing:2,fontWeight:700,marginBottom:14}}>{title}</div>}
-    {children}
-  </div>
-);
-
-// ══════════════════════════════
-// APP PRINCIPAL
-// ══════════════════════════════
 export default function App(){
-  const [tab,setTab]=useState("predictor");
-  const [t1,setT1]=useState("España");
-  const [t2,setT2]=useState("Cabo Verde");
-  const [c1,setC1]=useState("");
-  const [cX,setCX]=useState("");
-  const [c2odd,setC2odd]=useState("");
-  const [bajaH,setBajaH]=useState("");
-  const [bajaA,setBajaA]=useState("");
-  const [res,setRes]=useState(null);
-  const [loading,setLoading]=useState(false);
-  const [err,setErr]=useState(null);
-  const [grp,setGrp]=useState("A");
+  const[t1,setT1]=useState("Francia");
+  const[t2,setT2]=useState("Senegal");
+  const[q1,setQ1]=useState("");
+  const[qx,setQx]=useState("");
+  const[q2,setQ2]=useState("");
+  const[hj,setHj]=useState("");
+  const[hw1,setHw1]=useState("");
+  const[hw2,setHw2]=useState("");
 
-  const formaT1=calcForma(t1);
-  const formaT2=calcForma(t2);
-  const statsT1=TEAMS[t1];
-  const statsT2=TEAMS[t2];
+  const s1={...T[t1],nombre:t1};
+  const s2={...T[t2],nombre:t2};
+  const pr=t1!==t2?calcular(s1,s2,+q1,+qx,+q2,+hj,+hw1,+hw2):null;
+  const cC=pr?.conf==="ALTA"?G:pr?.conf==="MEDIA"?Y:"#ff6060";
 
-  // Señales de valor: cuántas coinciden a favor del favorito
-  const computeSignales=()=>{
-    if(!statsT1||!statsT2) return [];
-    const sigs=[];
-    const dElo=statsT1.elo-statsT2.elo;
-    if(Math.abs(dElo)>200) sigs.push({txt:`Diferencia ELO significativa: ${dElo>0?t1:t2} +${Math.abs(dElo)}`,favor:dElo>0?"home":"away",fuerte:Math.abs(dElo)>400});
-    if(formaT1.partidos>0||formaT2.partidos>0){
-      if(formaT1.pts>formaT2.pts) sigs.push({txt:`Mejor forma en torneo: ${t1} (${formaT1.pts}pts vs ${formaT2.pts}pts)`,favor:"home",fuerte:formaT1.pts-formaT2.pts>=2});
-      if(formaT2.pts>formaT1.pts) sigs.push({txt:`Mejor forma en torneo: ${t2} (${formaT2.pts}pts vs ${formaT1.pts}pts)`,favor:"away",fuerte:formaT2.pts-formaT1.pts>=2});
-      if(formaT1.partidos>0&&formaT2.partidos===0) sigs.push({txt:`${t1} ya tiene ritmo competitivo, ${t2} debuta`,favor:"home",fuerte:false});
-      if(formaT2.partidos>0&&formaT1.partidos===0) sigs.push({txt:`${t2} ya tiene ritmo competitivo, ${t1} debuta`,favor:"away",fuerte:false});
-    }
-    if(statsT1.def>=8&&statsT2.atk<=5) sigs.push({txt:`Defensa sólida de ${t1} vs ataque débil de ${t2}`,favor:"home",fuerte:true});
-    if(statsT2.def>=8&&statsT1.atk<=5) sigs.push({txt:`Defensa sólida de ${t2} vs ataque débil de ${t1}`,favor:"away",fuerte:true});
-    if(statsT1.tier<statsT2.tier) sigs.push({txt:`${t1} es de mayor nivel histórico (Tier ${statsT1.tier} vs ${statsT2.tier})`,favor:"home",fuerte:statsT2.tier-statsT1.tier>=2});
-    if(statsT2.tier<statsT1.tier) sigs.push({txt:`${t2} es de mayor nivel histórico (Tier ${statsT2.tier} vs ${statsT1.tier})`,favor:"away",fuerte:statsT1.tier-statsT2.tier>=2});
-    return sigs;
-  };
-  const senales=computeSignales();
-  const senalesHome=senales.filter(s=>s.favor==="home");
-  const senalesAway=senales.filter(s=>s.favor==="away");
-  const senalesFuertes=senales.filter(s=>s.fuerte);
-
-  const predict=async()=>{
-    if(t1===t2){setErr("Selecciona dos equipos diferentes.");return;}
-    setLoading(true);setErr(null);setRes(null);
-    const s1=TEAMS[t1],s2=TEAMS[t2];
-    if(!s1||!s2){setErr("Datos no disponibles.");setLoading(false);return;}
-
-    let cuotasBlock="";
-    if(c1&&cX&&c2odd){
-      const pH=1/parseFloat(c1),pD=1/parseFloat(cX),pA=1/parseFloat(c2odd);
-      const tot=pH+pD+pA;
-      cuotasBlock=`
-⭐ CUOTAS DE MERCADO (Feature #1 — peso 45% en el modelo):
-  Cuota 1 (${t1}): ${c1} → prob ${(pH/tot*100).toFixed(1)}%
-  Cuota X (empate): ${cX} → prob ${(pD/tot*100).toFixed(1)}%
-  Cuota 2 (${t2}): ${c2odd} → prob ${(pA/tot*100).toFixed(1)}%
-  Las casas de apuestas ya incorporan lesiones, estado físico, clima y toda la info disponible.`;
-    }
-
-    const sorpresasBlock=SORPRESAS.map(s=>`  • ${s}`).join("\n");
-    const prompt=`Eres un modelo XGBoost avanzado entrenado en predicción de partidos de fútbol del Mundial 2026.
-
-PARTIDO A ANALIZAR: ${t1} vs ${t2}
-Sede: Terreno neutral (Mundial 2026 USA/CAN/MEX)
-
-══════════ FEATURES COMPLETOS ══════════
-
-1. ELO Y FIFA (peso 20%):
-   ${t1}: ELO=${s1.elo}, FIFA=${s1.fifa}, Tier=${s1.tier}/4
-   ${t2}: ELO=${s2.elo}, FIFA=${s2.fifa}, Tier=${s2.tier}/4
-   diff_elo=${s1.elo-s2.elo} | diff_tier=${s1.tier-s2.tier}
-
-2. CAPACIDADES (peso 15%):
-   ${t1}: Ataque=${s1.atk}/10, Defensa=${s1.def}/10, xG_prom=${s1.xG}, xGA_prom=${s1.xGA}
-   ${t2}: Ataque=${s2.atk}/10, Defensa=${s2.def}/10, xG_prom=${s2.xG}, xGA_prom=${s2.xGA}
-
-3. FORMA REAL EN ESTE MUNDIAL (peso 20%):
-   ${t1}: ${formaT1.partidos}PJ, ${formaT1.pts}pts, GF:${formaT1.gf} GC:${formaT1.gc}, xGfor:${formaT1.xGfor} xGcon:${formaT1.xGcon}, forma:[${formaT1.forma.join(",")||"sin partidos"}]
-   ${t2}: ${formaT2.partidos}PJ, ${formaT2.pts}pts, GF:${formaT2.gf} GC:${formaT2.gc}, xGfor:${formaT2.xGfor} xGcon:${formaT2.xGcon}, forma:[${formaT2.forma.join(",")||"sin partidos"}]
-${cuotasBlock}
-${bajaH?`4. BAJAS ${t1}: ${bajaH}`:""}
-${bajaA?`5. BAJAS ${t2}: ${bajaA}`:""}
-
-══════════ CONTEXTO CRÍTICO: LECCIONES DEL MUNDIAL 2026 ══════════
-Resultados sorpresivos ya registrados (MUY IMPORTANTE para calibrar):
-${sorpresasBlock}
-
-PATRONES CLAVE COMPROBADOS:
-- Los equipos que dominan xG pero pierden son COMUNES en este mundial (Costa de Marfil, Australia, Qatar)
-- La diferencia Tier ≥2 casi siempre favorece al equipo superior
-- En partidos equilibrados (ELO diff < 150), el empate es altamente probable
-- Un solo gol cambia TODO: la línea entre ganar y perder es mínima
-
-══════════ LO QUE DEBES CALCULAR ══════════
-
-Responde EXCLUSIVAMENTE con JSON válido sin texto extra:
-{
-  "prob_home": 0.XX,
-  "prob_draw": 0.XX,
-  "prob_away": 0.XX,
-  "doble_oportunidad": {
-    "homeOrDraw": 0.XX,
-    "awayOrDraw": 0.XX,
-    "noEmpate": 0.XX
-  },
-  "goles": {
-    "mas15": 0.XX,
-    "mas25": 0.XX,
-    "mas35": 0.XX,
-    "ambosAnot": 0.XX
-  },
-  "predicted_score_home": X,
-  "predicted_score_away": X,
-  "confianza": "ALTA|MEDIA|BAJA",
-  "hay_valor": true|false,
-  "mejor_apuesta": "texto de la apuesta con mayor valor esperado",
-  "apuesta_evitar": "qué NO apostar y por qué",
-  "señal_consenso": "FUERTE|MODERADA|NINGUNA",
-  "key_factors": ["factor1 con número real","factor2 con número real","factor3 con número real"],
-  "alerta_sorpresa": "riesgo específico de sorpresa basado en patrones del mundial",
-  "analysis": "3-4 frases de análisis táctico con datos reales"
-}`;
-
-    try{
-      const response=await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:prompt}]})
-      });
-      const data=await response.json();
-      const text=data.content?.map(i=>i.text||"").join("")||"";
-      const m=text.match(/\{[\s\S]*\}/);
-      if(!m) throw new Error("No JSON");
-      const parsed=JSON.parse(m[0]);
-      setRes({...parsed,t1,t2,formaT1,formaT2,s1,s2});
-    }catch(e){setErr("Error al obtener predicción. Intenta de nuevo.");}
-    setLoading(false);
-  };
-
-  // Tabla grupo
-  const grupoTeams=GRUPOS[grp]||[];
-  const tablaGrp=grupoTeams.map(team=>{
-    const f=calcForma(team);
-    const wins=f.forma.filter(x=>x==="W").length;
-    const draws=f.forma.filter(x=>x==="D").length;
-    const losses=f.forma.filter(x=>x==="L").length;
-    return{team,...f,wins,draws,losses};
-  }).sort((a,b)=>b.pts-a.pts||(b.gf-b.gc)-(a.gf-a.gc));
-
-  const TABS=[["predictor","🎯 Predecir"],["grupos","🏆 Grupos"],["resultados","📋 Resultados"],["guia","📖 Guía"]];
+  const card={background:"#0a0f1e",border:"1px solid #1e2a3a",borderRadius:12,padding:14,marginBottom:12};
+  const sel={width:"100%",background:"#0d1117",border:"1px solid #1e2a3a",borderRadius:7,padding:"8px 10px",color:"#e2e8f0",fontSize:13,fontWeight:600};
+  const inp={...sel,padding:"7px 8px",textAlign:"center"};
 
   return(
-    <div style={{minHeight:"100vh",background:"#060a12",fontFamily:"'Inter','Segoe UI',sans-serif",color:"#e2e8f0"}}>
+    <div style={{minHeight:"100vh",background:C,fontFamily:"Inter,sans-serif",color:"#e2e8f0",padding:12,maxWidth:600,margin:"0 auto"}}>
 
-      {/* HEADER */}
-      <div style={{background:"linear-gradient(135deg,#0a0f1e,#0d1528)",borderBottom:"1px solid #1e2a3a"}}>
-        <div style={{maxWidth:940,margin:"0 auto",padding:"0 14px"}}>
-          <div style={{display:"flex",alignItems:"center",gap:10,paddingTop:14,paddingBottom:8}}>
-            <div style={{width:38,height:38,borderRadius:9,background:"linear-gradient(135deg,#00ff88,#0088ff)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,boxShadow:"0 0 18px #00ff8840"}}>⚽</div>
-            <div>
-              <div style={{fontSize:16,fontWeight:800,color:"#fff",letterSpacing:-0.5}}>MUNDIAL 2026 <span style={{color:"#00ff88"}}>PREDICTOR PRO</span></div>
-              <div style={{fontSize:9,color:"#4a5568",letterSpacing:2}}>XGBoost · xG REALES · CUOTAS · DOBLE OPORTUNIDAD · IA</div>
-            </div>
-            <div style={{marginLeft:"auto",display:"flex",gap:6}}>
-              <Tag c="green" size={10}>🔴 LIVE</Tag>
-              <Tag c="blue" size={10}>14 Jun 2026</Tag>
-            </div>
-          </div>
-          <div style={{display:"flex",gap:0,borderTop:"1px solid #1e2a3a",overflowX:"auto"}}>
-            {TABS.map(([key,label])=>(
-              <button key={key} onClick={()=>setTab(key)} style={{background:"none",border:"none",cursor:"pointer",padding:"10px 14px",fontSize:12,fontWeight:600,color:tab===key?"#00ff88":"#64748b",borderBottom:tab===key?"2px solid #00ff88":"2px solid transparent",whiteSpace:"nowrap"}}>
-                {label}
-              </button>
-            ))}
-          </div>
+      <div style={{...card,display:"flex",alignItems:"center",gap:10}}>
+        <div style={{width:36,height:36,borderRadius:9,background:"linear-gradient(135deg,#00ff88,#0088ff)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>⚽</div>
+        <div>
+          <div style={{fontSize:15,fontWeight:800,color:"#fff"}}>MUNDIAL 2026 <span style={{color:G}}>PREDICTOR</span></div>
+          <div style={{fontSize:9,color:"#4a5568"}}>Poisson · ELO · xG · H2H · Estilos · Mundial 2026</div>
         </div>
       </div>
 
-      <div style={{maxWidth:940,margin:"0 auto",padding:"14px"}}>
-
-        {/* ════════ PREDICTOR ════════ */}
-        {tab==="predictor"&&(
+      <div style={card}>
+        <div style={{fontSize:9,color:"#4a5568",letterSpacing:2,marginBottom:12}}>SELECCIONAR PARTIDO</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 32px 1fr",gap:8,marginBottom:12}}>
           <div>
-            <Section title="SELECCIONAR PARTIDO">
-              {/* Equipos */}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 34px 1fr",gap:10,marginBottom:14}}>
-                <div>
-                  <div style={{fontSize:9,color:"#4a5568",marginBottom:5,letterSpacing:1}}>EQUIPO 1</div>
-                  <select value={t1} onChange={e=>setT1(e.target.value)} style={{width:"100%",background:"#0d1117",border:"1px solid #1e2a3a",borderRadius:8,padding:"8px 10px",color:"#e2e8f0",fontSize:13,fontWeight:600}}>
-                    {allTeams.map(t=><option key={t} value={t}>{TEAMS[t]?.flag} {t}</option>)}
-                  </select>
-                  {formaT1.partidos>0?(
-                    <div style={{marginTop:7,padding:"7px 9px",background:"#060a12",borderRadius:7,border:"1px solid #1e2a3a"}}>
-                      <div style={{fontSize:9,color:"#4a5568",marginBottom:4}}>FORMA EN EL MUNDIAL</div>
-                      <div style={{display:"flex",gap:3,marginBottom:3}}>{formaT1.forma.map((f,i)=><FormaTag key={i} r={f}/>)}</div>
-                      <div style={{fontSize:10,color:"#64748b"}}>{formaT1.pts}pts · {formaT1.gf}-{formaT1.gc} · xG:{formaT1.xGfor}</div>
-                    </div>
- 
+            <select value={t1} onChange={e=>setT1(e.target.value)} style={sel}>
+              {teams.map(t=><option key={t} value={t}>{T[t].fl} {t}</option>)}
+            </select>
+            <div style={{fontSize:9,color:P,marginTop:4}}>{sn[s1.s]} · ELO {s1.e}</div>
+          </div>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <div style={{width:28,height:28,borderRadius:14,background:"#1e2a3a",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:Y}}>VS</div>
+          </div>
+          <div>
+            <select value={t2} onChange={e=>setT2(e.target.value)} style={sel}>
+              {teams.map(t=><option key={t} value={t}>{T[t].fl} {t}</option>)}
+            </select>
+            <div style={{fontSize:9,color:P,marginTop:4}}>{sn[s2.s]} · ELO {s2.e}</div>
+          </div>
+        </div>
+
+        {pr?.alerta&&(
+          <div style={{background:"#ff303010",borderRadius:8,padding:10,marginBottom:12,border:"2px solid #ff6060"}}>
+            <div style={{fontSize:9,color:"#ff6060",fontWeight:800,marginBottom:3}}>🚨 ALERTA BLOQUE DEFENSIVO</div>
+            <div style={{fontSize:11,color:"#fca5a5",lineHeight:1.5}}>Patrón confirmado: España 0-0 Cabo Verde · Bélgica 1-1 Egipto · Brasil 1-1 Marruecos · Irán 1-2 Nueva Zelanda. El favorito puede dominar pero NO marcar. Usa Doble Oportunidad.</div>
+          </div>
+        )}
+
+        <div style={{fontSize:9,color:Y,fontWeight:700,marginBottom:8}}>💰 CUOTAS (opcional)</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,marginBottom:12}}>
+          <div><div style={{fontSize:9,color:G,marginBottom:2,fontWeight:600}}>1 {t1.slice(0,6)}</div><input type="number" step="0.01" placeholder="1.85" value={q1} onChange={e=>setQ1(e.target.value)} style={{...inp,border:"1px solid #00ff8825"}}/></div>
+          <div><div style={{fontSize:9,color:Y,marginBottom:2,fontWeight:600}}>X Empate</div><input type="number" step="0.01" placeholder="3.40" value={qx} onChange={e=>setQx(e.target.value)} style={{...inp,border:"1px solid #ffd20025"}}/></div>
+          <div><div style={{fontSize:9,color:B,marginBottom:2,fontWeight:600}}>2 {t2.slice(0,6)}</div><input type="number" step="0.01" placeholder="4.50" value={q2} onChange={e=>setQ2(e.target.value)} style={{...inp,border:"1px solid #60a5fa25"}}/></div>
+        </div>
+
+        <div style={{fontSize:9,color:P,fontWeight:700,marginBottom:8}}>⚔️ H2H (busca en Google: "{t1} vs {t2} head to head")</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:5}}>
+          <div><div style={{fontSize:8,color:"#64748b",marginBottom:2}}>Total</div><input type="number" min="0" placeholder="0" value={hj} onChange={e=>setHj(e.target.value)} style={inp}/></div>
+          <div><div style={{fontSize:8,color:G,marginBottom:2}}>Vic {t1.slice(0,4)}</div><input type="number" min="0" placeholder="0" value={hw1} onChange={e=>setHw1(e.target.value)} style={{...inp,border:"1px solid #00ff8825"}}/></div>
+          <div><div style={{fontSize:8,color:Y,marginBottom:2}}>Emp</div><input type="number" min="0" placeholder="0" value={qx} onChange={e=>setQx(e.target.value)} style={{...inp,border:"1px solid #ffd20025"}}/></div>
+          <div><div style={{fontSize:8,color:B,marginBottom:2}}>Vic {t2.slice(0,4)}</div><input type="number" min="0" placeholder="0" value={hw2} onChange={e=>setHw2(e.target.value)} style={{...inp,border:"1px solid #60a5fa25"}}/></div>
+        </div>
+      </div>
+
+      {pr&&(
+        <div>
+          <div style={{...card,border:`1px solid ${cC}40`}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+              <span style={{fontSize:9,color:"#4a5568",letterSpacing:2}}>PREDICCIÓN POISSON + ELO</span>
+              <span style={{fontSize:10,padding:"2px 8px",borderRadius:12,fontWeight:700,color:cC,background:cC+"12",border:`1px solid ${cC}30`}}>{pr.conf}</span>
+            </div>
+
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:14,marginBottom:14,background:C,borderRadius:9,padding:14,border:"1px solid #1e2a3a"}}>
+              <div style={{textAlign:"center",flex:1}}>
+                <div style={{fontSize:28}}>{s1.fl}</div>
+                <div style={{fontSize:11,fontWeight:700,marginTop:3}}>{t1}</div>
+              </div>
+              <div style={{textAlign:"center"}}>
+                <div style={{fontSize:34,fontWeight:900,letterSpacing:4,color:"#fff"}}>{pr.sh}–{pr.sa}</div>
+                <div style={{fontSize:9,color:"#4a5568"}}>λ {pr.l1}–{pr.l2}</div>
+              </div>
+              <div style={{textAlign:"center",flex:1}}>
+                <div style={{fontSize:28}}>{s2.fl}</div>
+                <div style={{fontSize:11,fontWeight:700,marginTop:3}}>{t2}</div>
+              </div>
+            </div>
+
+            <div style={{fontSize:9,color:"#4a5568",letterSpacing:2,marginBottom:10}}>PROBABILIDADES 1X2</div>
+            <Fila l={"1 — "+t1} v={pr.pH} c={G}/>
+            <Fila l="X — Empate" v={pr.pD} c={Y}/>
+            <Fila l={"2 — "+t2} v={pr.pA} c={B}/>
+          </div>
+
+          <div style={card}>
+            <div style={{fontSize:9,color:"#4a5568",letterSpacing:2,marginBottom:12}}>MERCADOS ALTERNATIVOS</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
+              <div style={{background:C,borderRadius:8,padding:10,border:"1px solid #1e2a3a"}}>
+                <div style={{fontSize:9,color:"#4a5568",marginBottom:8}}>DOBLE OPORTUNIDAD</div>
+                <Fila l="1X" v={pr.hx} c={G}/>
+                <Fila l="X2" v={pr.x2} c={B}/>
+                <Fila l="No Emp" v={pr.ne} c={Y}/>
+              </div>
+              <div style={{background:C,borderRadius:8,padding:10,border:"1px solid #1e2a3a"}}>
+                <div style={{fontSize:9,color:"#4a5568",marginBottom:8}}>GOLES</div>
+                <Fila l="+1.5" v={pr.m15} c={G}/>
+                <Fila l="+2.5" v={pr.m25} c={B}/>
+                <Fila l="BTTS" v={pr.btts} c={P}/>
+              </div>
+            </div>
+            <div style={{padding:"10px 12px",borderRadius:8,background:"#00ff8808",border:"1px solid #00ff8825"}}>
+              <div style={{fontSize:9,color:G,fontWeight:800,marginBottom:3}}>✅ MEJOR APUESTA</div>
+              <div style={{fontSize:13,color:"#e2e8f0",fontWeight:600}}>{pr.mejor}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={{textAlign:"center",color:"#2a3548",fontSize:9,padding:"10px 0"}}>
+        Poisson · ELO · xG · H2H · Estilos · Mundial 2026
+      </div>
+    </div>
+  );
+                  }
