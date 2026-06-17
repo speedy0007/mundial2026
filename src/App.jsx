@@ -1,5 +1,5 @@
 import{useState}from"react";
-const VERSION="v2.9 • 16 Jun 2026";
+const VERSION="v3.1 • 16 Jun 2026";
 
 // Forma previa al mundial (últimos 5 partidos — W=ganó, D=empató, L=perdió)
 const PREFORMA={
@@ -220,7 +220,20 @@ export default function App(){
     setTimeout(()=>{
       const r=calc(s1,s2,+q1,+qx,+q2,+hj,+hw1,+hd,+hw2,arb,pr1,pr2);
       const sim=monteCarlo(r.l1,r.l2,10000);
-      setRes({...r,t1,t2});
+      // Combinar ambos metodos: promedio 50/50
+      const cH=(r.pH+sim.pH)/2;
+      const cD=(r.pD+sim.pD)/2;
+      const cA=(r.pA+sim.pA)/2;
+      const tot=cH+cD+cA;
+      const combinado={
+        pH:cH/tot, pD:cD/tot, pA:cA/tot,
+        hx:(cH+cD)/tot, x2:(cD+cA)/tot, ne:(cH+cA)/tot,
+      };
+      // Marcador del Monte Carlo (más probable de simulacion)
+      const topScore=sim.top[0]?.score||`${r.sh}-${r.sa}`;
+      const cf=Math.max(combinado.pH,combinado.pD,combinado.pA)>0.55?"ALTA":Math.max(combinado.pH,combinado.pD,combinado.pA)>0.42?"MEDIA":"BAJA";
+      const mj=combinado.pH>0.55?"Victoria "+t1:combinado.pA>0.55?"Victoria "+t2:(combinado.pH+combinado.pD)>0.75?"Doble 1X":(combinado.pA+combinado.pD)>0.75?"Doble X2":r.m15>0.72?"Mas 1.5 goles":"Evalua con cuotas";
+      setRes({...r,...combinado,cf,mj,topScore,t1,t2});
       setMc(sim);
       setLoad(false);
     },300);
@@ -305,36 +318,22 @@ export default function App(){
 
           {res&&<div>
             {mc&&<div style={{...card,border:"1px solid #c084fc30",marginBottom:12}}>
-              <div style={{fontSize:9,color:P,letterSpacing:2,marginBottom:12}}>SIMULACION MONTE CARLO — {mc.n.toLocaleString()} PARTIDOS</div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
-                <div style={{textAlign:"center",background:C,borderRadius:8,padding:10,border:"1px solid #1e2a3a"}}>
-                  <div style={{fontSize:20,fontWeight:900,color:G}}>{(mc.pH*100).toFixed(1)}%</div>
-                  <div style={{fontSize:9,color:"#4a5568",marginTop:3}}>Victoria {res.t1?.slice(0,6)}</div>
-                </div>
-                <div style={{textAlign:"center",background:C,borderRadius:8,padding:10,border:"1px solid #1e2a3a"}}>
-                  <div style={{fontSize:20,fontWeight:900,color:Y}}>{(mc.pD*100).toFixed(1)}%</div>
-                  <div style={{fontSize:9,color:"#4a5568",marginTop:3}}>Empate</div>
-                </div>
-                <div style={{textAlign:"center",background:C,borderRadius:8,padding:10,border:"1px solid #1e2a3a"}}>
-                  <div style={{fontSize:20,fontWeight:900,color:B}}>{(mc.pA*100).toFixed(1)}%</div>
-                  <div style={{fontSize:9,color:"#4a5568",marginTop:3}}>Victoria {res.t2?.slice(0,6)}</div>
-                </div>
-              </div>
-              <div style={{fontSize:9,color:"#4a5568",marginBottom:8}}>MARCADORES MAS PROBABLES</div>
+              <div style={{fontSize:9,color:P,letterSpacing:2,marginBottom:12}}>MARCADORES MAS PROBABLES — 10,000 SIMULACIONES</div>
               {mc.top.map((m,i)=>(
                 <div key={i} style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
-                  <span style={{fontSize:13,fontWeight:900,color:"#fff",minWidth:40,textAlign:"center",background:"#1e2a3a",borderRadius:6,padding:"2px 8px"}}>{m.score}</span>
+                  <span style={{fontSize:13,fontWeight:900,color:"#fff",minWidth:40,textAlign:"center",background:i===0?"#00ff8820":"#1e2a3a",borderRadius:6,padding:"2px 8px",border:i===0?"1px solid #00ff8840":"none"}}>{m.score}</span>
                   <div style={{flex:1,background:"#1a1f2e",borderRadius:4,height:7,overflow:"hidden"}}>
-                    <div style={{width:`${m.prob*100*3}%`,height:"100%",background:i===0?G:i===1?B:P,borderRadius:4}}/>
+                    <div style={{width:`${m.prob*100*4}%`,height:"100%",background:i===0?G:i===1?B:P,borderRadius:4}}/>
                   </div>
                   <span style={{fontSize:11,fontWeight:700,color:i===0?G:i===1?B:P,minWidth:40,textAlign:"right"}}>{(m.prob*100).toFixed(1)}%</span>
                 </div>
               ))}
+              <div style={{fontSize:9,color:"#4a5568",marginTop:8,textAlign:"center"}}>Probabilidades combinadas Poisson + Monte Carlo</div>
             </div>}
             {res.al&&<div style={{background:"#ff303010",borderRadius:8,padding:10,marginBottom:12,border:"2px solid #ff6060"}}><div style={{fontSize:9,color:"#ff6060",fontWeight:800,marginBottom:3}}>ALERTA BLOQUE</div><div style={{fontSize:11,color:"#fca5a5"}}>Patron confirmado este mundial. El favorito puede dominar pero NO marcar. Usa Doble Oportunidad.</div></div>}
             <div style={{...card,border:`1px solid ${cC}40`}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-                <span style={{fontSize:9,color:"#4a5568",letterSpacing:2}}>PREDICCION POISSON+ELO</span>
+                <span style={{fontSize:9,color:"#4a5568",letterSpacing:2}}>PREDICCION COMBINADA</span>
                 <span style={{fontSize:10,padding:"2px 8px",borderRadius:12,fontWeight:700,color:cC,background:cC+"12",border:`1px solid ${cC}30`}}>{res.cf}</span>
               </div>
               <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:14,marginBottom:14,background:C,borderRadius:9,padding:14,border:"1px solid #1e2a3a"}}>
