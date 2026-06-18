@@ -1,5 +1,5 @@
 import{useState}from"react";
-const VERSION="v3.5 • 17 Jun 2026";
+const VERSION="v3.6 • 17 Jun 2026";
 
 // Forma previa al mundial (últimos 5 partidos — W=ganó, D=empató, L=perdió)
 const PREFORMA={
@@ -107,43 +107,57 @@ const teams=Object.keys(T).sort();
 function pois(l,k){let p=Math.exp(-l);for(let i=1;i<=k;i++)p*=l/i;return p;}
 
 function calc(s1,s2,q1,qx,q2,hj,hw1,hd,hw2,arb,presion1,presion2){
-  let l1=s1.xG*(10/s2.d),l2=s2.xG*(10/s1.d);
+  // BASE: xG proporcional a defensa relativa (2.6 = promedio goles/partido mundial)
+  const totalD=s1.d+s2.d;
+  let l1=s1.xG*(s1.d/totalD)*2.6;
+  let l2=s2.xG*(s2.d/totalD)*2.6;
+
+  // AJUSTE ELO
   const de=(s1.e-s2.e)/400;
-  l1*=Math.pow(10,de*0.1);l2*=Math.pow(10,-de*0.1);
-  // Ajuste estilo bloque
-  if(s1.s==="pos"&&(s2.s==="blq"||s2.s==="cnt")){l1*=0.72;l2*=0.85;}
-  if(s2.s==="pos"&&(s1.s==="blq"||s1.s==="cnt")){l2*=0.72;l1*=0.85;}
-  // Ajuste H2H
-  if(hj>=3){const r1=hw1/hj,r2=hw2/hj;l1*=(1+(r1-r2)*0.15);l2*=(1+(r2-r1)*0.15);}
-  // Ajuste forma previa al mundial (para equipos sin partidos jugados)
+  l1*=Math.pow(10,de*0.08);
+  l2*=Math.pow(10,-de*0.08);
+
+  // AJUSTE estilo de juego
+  if(s1.s==="pos"&&(s2.s==="blq"||s2.s==="cnt")){l1*=0.80;l2*=0.90;}
+  if(s2.s==="pos"&&(s1.s==="blq"||s1.s==="cnt")){l2*=0.80;l1*=0.90;}
+
+  // AJUSTE forma: previa al mundial (sin jugar) o real del torneo (ya jugo)
   const f1=calcForma(s1.n),f2=calcForma(s2.n);
-  if(f1.pre){const pp=calcPuntosPre(s1.n)/15;l1*=(0.9+pp*0.2);}
-  if(f2.pre){const pp=calcPuntosPre(s2.n)/15;l2*=(0.9+pp*0.2);}
-  // Ajuste presion de clasificacion
-  if(presion1==="ganar"){l1*=1.10;l2*=1.05;}
-  if(presion1==="eliminado"){l1*=1.05;}
-  if(presion2==="ganar"){l2*=1.10;l1*=1.05;}
-  if(presion2==="eliminado"){l2*=1.05;}
-  // Ajuste arbitro
-  const ra=ARBITROS[arb]||0;
-  if(ra===1){l1*=1.05;l2*=1.05;}
-  if(ra===-1){l1*=0.95;l2*=0.95;}
-  // Cap lambdas dinamico segun diferencia de ELO
-  // Partidos equilibrados: max 2.2 | Muy desiguales: max 1.8
-  const dElo=Math.abs(s1.e-s2.e);
-  const maxL=dElo>400?1.8:dElo>200?2.0:2.2;
-  const minL=0.3;
-  // Ajuste adicional para el equipo debil en partidos muy desiguales
-  if(dElo>300){
-    const adj=1-(dElo-300)/3000;
-    if(s1.e>s2.e) l2=Math.max(minL,l2*adj);
-    else l1=Math.max(minL,l1*adj);
+  if(f1.pre){
+    const pp=calcPuntosPre(s1.n)/15;l1*=(0.70+pp*0.60);
+  }else if(f1.n>0){
+    const ataqReal=f1.gf/f1.n, defReal=f1.gc/f1.n;
+    l1*=(0.5+(ataqReal/s1.xG)*0.5);
+    l2*=(0.5+(defReal/s2.xA)*0.5);
   }
-  l1=Math.max(minL,Math.min(maxL,l1));
-  l2=Math.max(minL,Math.min(maxL,l2));
+  if(f2.pre){
+    const pp=calcPuntosPre(s2.n)/15;l2*=(0.70+pp*0.60);
+  }else if(f2.n>0){
+    const ataqReal=f2.gf/f2.n, defReal=f2.gc/f2.n;
+    l2*=(0.5+(ataqReal/s2.xG)*0.5);
+    l1*=(0.5+(defReal/s1.xA)*0.5);
+  }
+
+  // AJUSTE H2H
+  if(hj>=3){const r1=hw1/hj,r2=hw2/hj;l1*=(1+(r1-r2)*0.20);l2*=(1+(r2-r1)*0.20);}
+
+  // AJUSTE presion de clasificacion
+  if(presion1==="ganar"){l1*=1.12;l2*=1.06;}
+  else if(presion1==="eliminado"){l1*=1.08;}
+  if(presion2==="ganar"){l2*=1.12;l1*=1.06;}
+  else if(presion2==="eliminado"){l2*=1.08;}
+
+  // AJUSTE arbitro
+  const ra=ARBITROS[arb]||0;
+  if(ra===1){l1*=1.06;l2*=1.06;}
+  else if(ra===-1){l1*=0.94;l2*=0.94;}
+
+  // Solo minimo, SIN techo fijo - cada partido refleja sus propios datos
+  l1=Math.max(0.3,l1);l2=Math.max(0.3,l2);
+
   let pH=0,pD=0,pA=0,m15=0,m25=0,btts=0;
   for(let i=0;i<=6;i++)for(let j=0;j<=6;j++){const p=pois(l1,i)*pois(l2,j);if(i>j)pH+=p;else if(i===j)pD+=p;else pA+=p;if(i+j>1)m15+=p;if(i+j>2)m25+=p;if(i>0&&j>0)btts+=p;}
-  if(q1>0&&qx>0&&q2>0){const r1=1/q1,rx=1/qx,r2=1/q2,rt=r1+rx+r2;pH=pH*0.6+(r1/rt)*0.4;pD=pD*0.6+(rx/rt)*0.4;pA=pA*0.6+(r2/rt)*0.4;}
+  if(q1>0&&qx>0&&q2>0){const r1=1/q1,rx=1/qx,r2=1/q2,rt=r1+rx+r2;pH=pH*0.55+(r1/rt)*0.45;pD=pD*0.55+(rx/rt)*0.45;pA=pA*0.55+(r2/rt)*0.45;}
   const tot=pH+pD+pA;pH/=tot;pD/=tot;pA/=tot;
   const al=(s1.s==="pos"&&(s2.s==="blq"||s2.s==="cnt"))||(s2.s==="pos"&&(s1.s==="blq"||s1.s==="cnt"));
   const cf=Math.max(pH,pD,pA)>0.55?"ALTA":Math.max(pH,pD,pA)>0.42?"MEDIA":"BAJA";
