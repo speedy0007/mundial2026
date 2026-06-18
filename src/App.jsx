@@ -1,5 +1,5 @@
 import{useState}from"react";
-const VERSION="v3.4 • 17 Jun 2026";
+const VERSION="v3.5 • 17 Jun 2026";
 
 // Forma previa al mundial (últimos 5 partidos — W=ganó, D=empató, L=perdió)
 const PREFORMA={
