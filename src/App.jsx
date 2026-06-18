@@ -1,5 +1,5 @@
 import{useState}from"react";
-const VERSION="v3.1 • 16 Jun 2026";
+const VERSION="v3.4 • 17 Jun 2026";
 
 // Forma previa al mundial (últimos 5 partidos — W=ganó, D=empató, L=perdió)
 const PREFORMA={
@@ -85,7 +85,7 @@ const ARBITROS={
 
 const T={"Argentina":{e:2113,xG:2.0,xA:0.9,fl:"🇦🇷",a:9,d:9,s:"pos"},"Francia":{e:2063,xG:1.9,xA:1.0,fl:"🇫🇷",a:9,d:8,s:"pos"},"España":{e:2171,xG:1.8,xA:0.8,fl:"🇪🇸",a:8,d:9,s:"pos"},"Inglaterra":{e:2042,xG:1.7,xA:1.0,fl:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",a:8,d:8,s:"mix"},"Portugal":{e:1976,xG:1.7,xA:1.0,fl:"🇵🇹",a:8,d:7,s:"mix"},"Brasil":{e:1979,xG:1.7,xA:1.0,fl:"🇧🇷",a:8,d:8,s:"pos"},"Países Bajos":{e:1959,xG:1.6,xA:1.1,fl:"🇳🇱",a:8,d:7,s:"mix"},"Marruecos":{e:1940,xG:1.3,xA:0.8,fl:"🇲🇦",a:6,d:9,s:"blq"},"Bélgica":{e:1849,xG:1.6,xA:1.1,fl:"🇧🇪",a:7,d:7,s:"pos"},"Alemania":{e:1910,xG:1.6,xA:1.1,fl:"🇩🇪",a:8,d:7,s:"mix"},"Croacia":{e:1933,xG:1.4,xA:1.0,fl:"🇭🇷",a:6,d:7,s:"mix"},"Colombia":{e:1998,xG:1.5,xA:1.1,fl:"🇨🇴",a:7,d:7,s:"mix"},"Senegal":{e:1869,xG:1.4,xA:1.1,fl:"🇸🇳",a:7,d:7,s:"mix"},"México":{e:1820,xG:1.3,xA:1.2,fl:"🇲🇽",a:6,d:6,s:"mix"},"Estados Unidos":{e:1780,xG:1.3,xA:1.2,fl:"🇺🇸",a:7,d:6,s:"mix"},"Uruguay":{e:1890,xG:1.4,xA:1.0,fl:"🇺🇾",a:6,d:8,s:"blq"},"Japón":{e:1879,xG:1.4,xA:1.1,fl:"🇯🇵",a:7,d:7,s:"cnt"},"Suiza":{e:1897,xG:1.4,xA:1.0,fl:"🇨🇭",a:6,d:7,s:"mix"},"Ecuador":{e:1933,xG:1.4,xA:1.1,fl:"🇪🇨",a:7,d:7,s:"mix"},"Noruega":{e:1922,xG:1.5,xA:1.2,fl:"🇳🇴",a:8,d:6,s:"mix"},"Suecia":{e:1890,xG:1.5,xA:1.2,fl:"🇸🇪",a:7,d:7,s:"mix"},"Turquía":{e:1880,xG:1.4,xA:1.2,fl:"🇹🇷",a:7,d:6,s:"mix"},"Austria":{e:1820,xG:1.3,xA:1.2,fl:"🇦🇹",a:7,d:6,s:"mix"},"Corea del Sur":{e:1790,xG:1.2,xA:1.2,fl:"🇰🇷",a:6,d:6,s:"mix"},"Australia":{e:1750,xG:1.2,xA:1.3,fl:"🇦🇺",a:6,d:6,s:"cnt"},"Canadá":{e:1770,xG:1.3,xA:1.3,fl:"🇨🇦",a:6,d:6,s:"mix"},"Escocia":{e:1760,xG:1.3,xA:1.2,fl:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",a:6,d:7,s:"mix"},"Paraguay":{e:1700,xG:1.1,xA:1.3,fl:"🇵🇾",a:5,d:6,s:"blq"},"Argelia":{e:1680,xG:1.2,xA:1.2,fl:"🇩🇿",a:5,d:6,s:"mix"},"Arabia Saudita":{e:1640,xG:1.1,xA:1.4,fl:"🇸🇦",a:5,d:5,s:"blq"},"Túnez":{e:1630,xG:1.1,xA:1.3,fl:"🇹🇳",a:5,d:6,s:"blq"},"Egipto":{e:1620,xG:1.1,xA:1.3,fl:"🇪🇬",a:5,d:6,s:"blq"},"Irán":{e:1610,xG:1.0,xA:1.2,fl:"🇮🇷",a:5,d:6,s:"blq"},"Ghana":{e:1600,xG:1.1,xA:1.4,fl:"🇬🇭",a:5,d:5,s:"mix"},"Costa de Marfil":{e:1590,xG:1.1,xA:1.4,fl:"🇨🇮",a:6,d:5,s:"cnt"},"DR Congo":{e:1570,xG:1.1,xA:1.4,fl:"🇨🇩",a:5,d:5,s:"mix"},"Bosnia y Herzegovina":{e:1560,xG:1.1,xA:1.4,fl:"🇧🇦",a:5,d:5,s:"mix"},"Chequia":{e:1540,xG:1.0,xA:1.3,fl:"🇨🇿",a:5,d:5,s:"mix"},"Jordania":{e:1400,xG:0.8,xA:1.5,fl:"🇯🇴",a:4,d:4,s:"blq"},"Uzbekistán":{e:1420,xG:0.9,xA:1.4,fl:"🇺🇿",a:4,d:4,s:"mix"},"Qatar":{e:1500,xG:1.0,xA:1.4,fl:"🇶🇦",a:5,d:5,s:"blq"},"Panamá":{e:1480,xG:0.9,xA:1.5,fl:"🇵🇦",a:4,d:5,s:"blq"},"Irak":{e:1450,xG:0.9,xA:1.5,fl:"🇮🇶",a:4,d:4,s:"blq"},"Cabo Verde":{e:1460,xG:1.0,xA:1.5,fl:"🇨🇻",a:4,d:5,s:"blq"},"Sudáfrica":{e:1490,xG:1.0,xA:1.4,fl:"🇿🇦",a:5,d:5,s:"mix"},"Nueva Zelanda":{e:1380,xG:0.8,xA:1.6,fl:"🇳🇿",a:3,d:4,s:"blq"},"Curazao":{e:1350,xG:0.7,xA:1.6,fl:"🇨🇼",a:3,d:3,s:"mix"},"Haití":{e:1330,xG:0.7,xA:1.7,fl:"🇭🇹",a:3,d:3,s:"blq"}};
 
-const RES=[{h:"México",a:"Sudáfrica",gh:2,ga:0,f:"Jun 11",g:"A"},{h:"Corea del Sur",a:"Chequia",gh:2,ga:1,f:"Jun 11",g:"A"},{h:"Canadá",a:"Bosnia y Herzegovina",gh:1,ga:1,f:"Jun 12",g:"B"},{h:"Estados Unidos",a:"Paraguay",gh:4,ga:1,f:"Jun 12",g:"D"},{h:"Qatar",a:"Suiza",gh:1,ga:1,f:"Jun 13",g:"B"},{h:"Brasil",a:"Marruecos",gh:1,ga:1,f:"Jun 13",g:"C"},{h:"Haití",a:"Escocia",gh:0,ga:1,f:"Jun 13",g:"C"},{h:"Australia",a:"Turquía",gh:2,ga:0,f:"Jun 13",g:"D"},{h:"Alemania",a:"Curazao",gh:7,ga:1,f:"Jun 14",g:"E"},{h:"Países Bajos",a:"Japón",gh:2,ga:2,f:"Jun 14",g:"F"},{h:"Costa de Marfil",a:"Ecuador",gh:1,ga:0,f:"Jun 14",g:"E"},{h:"Suecia",a:"Túnez",gh:2,ga:1,f:"Jun 14",g:"F"},{h:"España",a:"Cabo Verde",gh:0,ga:0,f:"Jun 15",g:"H"},{h:"Bélgica",a:"Egipto",gh:1,ga:1,f:"Jun 15",g:"G"},{h:"Arabia Saudita",a:"Uruguay",gh:1,ga:1,f:"Jun 15",g:"H"},{h:"Irán",a:"Nueva Zelanda",gh:2,ga:2,f:"Jun 15",g:"G"}];
+const RES=[{h:"México",a:"Sudáfrica",gh:2,ga:0,f:"Jun 11",g:"A"},{h:"Corea del Sur",a:"Chequia",gh:2,ga:1,f:"Jun 11",g:"A"},{h:"Canadá",a:"Bosnia y Herzegovina",gh:1,ga:1,f:"Jun 12",g:"B"},{h:"Estados Unidos",a:"Paraguay",gh:4,ga:1,f:"Jun 12",g:"D"},{h:"Qatar",a:"Suiza",gh:1,ga:1,f:"Jun 13",g:"B"},{h:"Brasil",a:"Marruecos",gh:1,ga:1,f:"Jun 13",g:"C"},{h:"Haití",a:"Escocia",gh:0,ga:1,f:"Jun 13",g:"C"},{h:"Australia",a:"Turquía",gh:2,ga:0,f:"Jun 13",g:"D"},{h:"Alemania",a:"Curazao",gh:7,ga:1,f:"Jun 14",g:"E"},{h:"Países Bajos",a:"Japón",gh:2,ga:2,f:"Jun 14",g:"F"},{h:"Costa de Marfil",a:"Ecuador",gh:1,ga:0,f:"Jun 14",g:"E"},{h:"Suecia",a:"Túnez",gh:2,ga:1,f:"Jun 14",g:"F"},{h:"España",a:"Cabo Verde",gh:0,ga:0,f:"Jun 15",g:"H"},{h:"Bélgica",a:"Egipto",gh:1,ga:1,f:"Jun 15",g:"G"},{h:"Arabia Saudita",a:"Uruguay",gh:1,ga:1,f:"Jun 15",g:"H"},{h:"Irán",a:"Nueva Zelanda",gh:2,ga:2,f:"Jun 15",g:"G"},{h:"Francia",a:"Senegal",gh:3,ga:1,f:"Jun 16",g:"I"},{h:"Noruega",a:"Irak",gh:4,ga:1,f:"Jun 16",g:"I"},{h:"Argentina",a:"Argelia",gh:3,ga:0,f:"Jun 16",g:"J"},{h:"Austria",a:"Jordania",gh:3,ga:1,f:"Jun 16",g:"J"},{h:"Portugal",a:"DR Congo",gh:1,ga:1,f:"Jun 17",g:"K"},{h:"Inglaterra",a:"Croacia",gh:4,ga:2,f:"Jun 17",g:"L"},{h:"Ghana",a:"Panamá",gh:1,ga:0,f:"Jun 17",g:"L"},{h:"Uzbekistán",a:"Colombia",gh:1,ga:3,f:"Jun 17",g:"K"}];
 
 const GRUPOS={A:["México","Corea del Sur","Sudáfrica","Chequia"],B:["Canadá","Suiza","Qatar","Bosnia y Herzegovina"],C:["Brasil","Marruecos","Escocia","Haití"],D:["Estados Unidos","Australia","Paraguay","Turquía"],E:["Alemania","Ecuador","Costa de Marfil","Curazao"],F:["Países Bajos","Japón","Suecia","Túnez"],G:["Bélgica","Irán","Egipto","Nueva Zelanda"],H:["España","Uruguay","Arabia Saudita","Cabo Verde"],I:["Francia","Senegal","Noruega","Irak"],J:["Argentina","Austria","Argelia","Jordania"],K:["Portugal","Colombia","Uzbekistán","DR Congo"],L:["Inglaterra","Croacia","Panamá","Ghana"]};
 
@@ -174,6 +174,59 @@ function monteCarlo(l1,l2,n=10000){
   return{pH:wH/n,pD:wD/n,pA:wA/n,top,n};
 }
 
+function predecirEnVivo(s1,s2,min,g1act,g2act,pos1,pos2,sp1,sp2,co1,co2,roja1,roja2){
+  const minRest=Math.max(90-min,1);
+  // Lambda base original del partido completo
+  const totalD=s1.d+s2.d;
+  let l1base=s1.xG*(s1.d/totalD)*2.6;
+  let l2base=s2.xG*(s2.d/totalD)*2.6;
+  const de=(s1.e-s2.e)/400;
+  l1base*=Math.pow(10,de*0.08);
+  l2base*=Math.pow(10,-de*0.08);
+  
+  // Indice de dominio: combina posesion + tiros a puerta + corners
+  // Normalizado 0-1, >0.5 significa que el equipo domina
+  const totPos=pos1+pos2||100;
+  const totSp=sp1+sp2||1;
+  const totCo=co1+co2||1;
+  const dom1=(pos1/totPos)*0.4+(sp1/totSp)*0.4+(co1/totCo)*0.2;
+  const dom2=1-dom1;
+  
+  // Ajustar lambda restante segun dominio actual (mas peso que el lambda original)
+  let l1rest=(l1base/90)*minRest*(0.5+dom1*1.0);
+  let l2rest=(l2base/90)*minRest*(0.5+dom2*1.0);
+  
+  // Ajuste por marcador actual: quien gana juega mas conservador, quien pierde se desespera
+  if(g1act>g2act){l1rest*=0.88;l2rest*=1.12;}
+  else if(g2act>g1act){l2rest*=0.88;l1rest*=1.12;}
+  
+  // Ajuste por tarjeta roja: el equipo con un jugador menos sufre mucho
+  if(roja1){l1rest*=0.55;l2rest*=1.30;}
+  if(roja2){l2rest*=0.55;l1rest*=1.30;}
+  
+  l1rest=Math.max(0.05,l1rest);
+  l2rest=Math.max(0.05,l2rest);
+  
+  // Simular goles restantes con Monte Carlo
+  const n=10000;
+  let wH=0,wD=0,wA=0;
+  const finales={};
+  for(let i=0;i<n;i++){
+    const gf1=g1act+Math.min(randPoisson(l1rest),6);
+    const gf2=g2act+Math.min(randPoisson(l2rest),6);
+    if(gf1>gf2)wH++;else if(gf1===gf2)wD++;else wA++;
+    const key=`${gf1}-${gf2}`;
+    finales[key]=(finales[key]||0)+1;
+  }
+  const top=Object.entries(finales).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>({score:k,prob:v/n}));
+  
+  // Indice de dominio textual
+  const domTxt=dom1>0.6?`${s1.n} domina claramente`:dom1>0.52?`${s1.n} ligera ventaja`:dom2>0.6?`${s2.n} domina claramente`:dom2>0.52?`${s2.n} ligera ventaja`:"Partido equilibrado";
+  const sostenible=(g1act>g2act&&dom1<0.45)||(g2act>g1act&&dom2<0.45);
+  
+  return{pH:wH/n,pD:wD/n,pA:wA/n,top,minRest,l1rest:+l1rest.toFixed(2),l2rest:+l2rest.toFixed(2),dom1,dom2,domTxt,sostenible,n};
+}
+
 const C="#060a12",G="#00ff88",Y="#ffd200",B="#60a5fa",P="#c084fc";
 const sn={pos:"Posesion",blq:"Bloque",cnt:"Contragolpe",mix:"Mixto"};
 const Ba=({v,c})=><div style={{background:"#1a1f2e",borderRadius:4,height:7,overflow:"hidden"}}><div style={{width:`${Math.min(v*100,100)}%`,height:"100%",background:c,borderRadius:4}}/></div>;
@@ -206,6 +259,22 @@ export default function App(){
   const[res,setRes]=useState(null);
   const[mc,setMc]=useState(null);
   const[load,setLoad]=useState(false);
+  // Estado pestaña En Vivo
+  const[lt1,setLt1]=useState("Portugal");
+  const[lt2,setLt2]=useState("DR Congo");
+  const[lmin,setLmin]=useState("");
+  const[lg1,setLg1]=useState("");
+  const[lg2,setLg2]=useState("");
+  const[lpos1,setLpos1]=useState("");
+  const[lpos2,setLpos2]=useState("");
+  const[lsp1,setLsp1]=useState("");
+  const[lsp2,setLsp2]=useState("");
+  const[lco1,setLco1]=useState("");
+  const[lco2,setLco2]=useState("");
+  const[lroja1,setLroja1]=useState(false);
+  const[lroja2,setLroja2]=useState(false);
+  const[liveRes,setLiveRes]=useState(null);
+  const[liveLoad,setLiveLoad]=useState(false);
   const s1={...T[t1],n:t1},s2={...T[t2],n:t2};
   const f1=calcForma(t1),f2=calcForma(t2);
   const cC=res?.cf==="ALTA"?G:res?.cf==="MEDIA"?Y:"#ff6060";
@@ -239,6 +308,17 @@ export default function App(){
     },300);
   }
 
+  function predecirLive(){
+    if(lt1===lt2||lmin===""||lg1===""||lg2==="")return;
+    setLiveLoad(true);
+    setTimeout(()=>{
+      const ls1={...T[lt1],n:lt1},ls2={...T[lt2],n:lt2};
+      const r=predecirEnVivo(ls1,ls2,+lmin,+lg1,+lg2,+lpos1||50,+lpos2||50,+lsp1||0,+lsp2||0,+lco1||0,+lco2||0,lroja1,lroja2);
+      setLiveRes({...r,t1:lt1,t2:lt2,g1:+lg1,g2:+lg2,min:+lmin});
+      setLiveLoad(false);
+    },300);
+  }
+
   return(
     <div style={{minHeight:"100vh",background:C,fontFamily:"Inter,sans-serif",color:"#e2e8f0",maxWidth:600,margin:"0 auto"}}>
       <div style={{background:"#0a0f1e",borderBottom:"1px solid #1e2a3a",padding:"10px 14px"}}>
@@ -247,7 +327,7 @@ export default function App(){
           <div><div style={{fontSize:15,fontWeight:800,color:"#fff"}}>MUNDIAL 2026 <span style={{color:G}}>PREDICTOR</span></div><div style={{fontSize:9,color:"#4a5568"}}>Poisson ELO xG H2H Estilos Arbitro Presion</div></div>
         </div>
         <div style={{display:"flex",borderTop:"1px solid #1e2a3a"}}>
-          {[["pred","Predecir"],["grp","Grupos"],["res2","Resultados"]].map(([k,l])=>(<button key={k} onClick={()=>setTab(k)} style={{background:"none",border:"none",cursor:"pointer",padding:"9px 14px",fontSize:12,fontWeight:600,color:tab===k?G:"#64748b",borderBottom:tab===k?`2px solid ${G}`:"2px solid transparent"}}>{l}</button>))}
+          {[["pred","Predecir"],["live","🔴 En Vivo"],["grp","Grupos"],["res2","Resultados"]].map(([k,l])=>(<button key={k} onClick={()=>setTab(k)} style={{background:"none",border:"none",cursor:"pointer",padding:"9px 14px",fontSize:12,fontWeight:600,color:tab===k?G:"#64748b",borderBottom:tab===k?`2px solid ${G}`:"2px solid transparent"}}>{l}</button>))}
         </div>
       </div>
       <div style={{padding:12}}>
@@ -356,6 +436,98 @@ export default function App(){
           </div>}
         </div>}
 
+        {tab==="live"&&<div>
+          <div style={card}>
+            <div style={{fontSize:9,color:"#ff6060",letterSpacing:2,marginBottom:12}}>🔴 PARTIDO EN VIVO</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 32px 1fr",gap:8,marginBottom:14}}>
+              <select value={lt1} onChange={e=>{setLt1(e.target.value);setLiveRes(null);}} style={sel}>{teams.map(t=><option key={t} value={t}>{T[t].fl} {t}</option>)}</select>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{width:28,height:28,borderRadius:14,background:"#1e2a3a",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:Y}}>VS</div></div>
+              <select value={lt2} onChange={e=>{setLt2(e.target.value);setLiveRes(null);}} style={sel}>{teams.map(t=><option key={t} value={t}>{T[t].fl} {t}</option>)}</select>
+            </div>
+
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
+              <div><div style={{fontSize:9,color:"#ff6060",marginBottom:3,fontWeight:700}}>MINUTO</div><input type="number" min="1" max="99" placeholder="29" value={lmin} onChange={e=>setLmin(e.target.value)} style={inp}/></div>
+              <div><div style={{fontSize:9,color:G,marginBottom:3,fontWeight:700}}>GOLES {lt1.slice(0,5)}</div><input type="number" min="0" placeholder="0" value={lg1} onChange={e=>setLg1(e.target.value)} style={inp}/></div>
+              <div><div style={{fontSize:9,color:B,marginBottom:3,fontWeight:700}}>GOLES {lt2.slice(0,5)}</div><input type="number" min="0" placeholder="0" value={lg2} onChange={e=>setLg2(e.target.value)} style={inp}/></div>
+            </div>
+
+            <div style={{fontSize:9,color:P,fontWeight:700,marginBottom:8}}>POSESION % (obligatorio)</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:14}}>
+              <input type="number" min="0" max="100" placeholder={lt1.slice(0,10)+" %"} value={lpos1} onChange={e=>setLpos1(e.target.value)} style={inp}/>
+              <input type="number" min="0" max="100" placeholder={lt2.slice(0,10)+" %"} value={lpos2} onChange={e=>setLpos2(e.target.value)} style={inp}/>
+            </div>
+
+            <div style={{fontSize:9,color:P,fontWeight:700,marginBottom:8}}>TIROS A PUERTA (obligatorio)</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:14}}>
+              <input type="number" min="0" placeholder="0" value={lsp1} onChange={e=>setLsp1(e.target.value)} style={inp}/>
+              <input type="number" min="0" placeholder="0" value={lsp2} onChange={e=>setLsp2(e.target.value)} style={inp}/>
+            </div>
+
+            <div style={{fontSize:9,color:P,fontWeight:700,marginBottom:8}}>CORNERS (obligatorio)</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:14}}>
+              <input type="number" min="0" placeholder="0" value={lco1} onChange={e=>setLco1(e.target.value)} style={inp}/>
+              <input type="number" min="0" placeholder="0" value={lco2} onChange={e=>setLco2(e.target.value)} style={inp}/>
+            </div>
+
+            <div style={{fontSize:9,color:"#ff6060",fontWeight:700,marginBottom:8}}>TARJETA ROJA (opcional)</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:14}}>
+              <label style={{display:"flex",alignItems:"center",gap:6,fontSize:11,color:"#94a3b8",cursor:"pointer"}}><input type="checkbox" checked={lroja1} onChange={e=>setLroja1(e.target.checked)}/> {lt1.slice(0,12)} con roja</label>
+              <label style={{display:"flex",alignItems:"center",gap:6,fontSize:11,color:"#94a3b8",cursor:"pointer"}}><input type="checkbox" checked={lroja2} onChange={e=>setLroja2(e.target.checked)}/> {lt2.slice(0,12)} con roja</label>
+            </div>
+
+            <button onClick={predecirLive} disabled={liveLoad||lt1===lt2||lmin===""||lg1===""||lg2===""} style={{width:"100%",padding:"13px 0",borderRadius:10,border:"none",cursor:"pointer",background:liveLoad||lt1===lt2||lmin===""?"#1e2a3a":"linear-gradient(135deg,#ff6060,#ff3030)",color:liveLoad||lt1===lt2||lmin===""?"#4a5568":"#fff",fontWeight:800,fontSize:14}}>
+              {liveLoad?"Calculando...":"🔴 PREDECIR EN VIVO"}
+            </button>
+          </div>
+
+          {liveRes&&<div>
+            <div style={{...card,border:"1px solid #ff606040"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <span style={{fontSize:9,color:"#4a5568",letterSpacing:2}}>MIN {liveRes.min}' · {liveRes.minRest} MIN RESTANTES</span>
+                <span style={{fontSize:10,padding:"2px 8px",borderRadius:12,fontWeight:700,color:"#ff6060",background:"#ff606012",border:"1px solid #ff606030"}}>EN VIVO</span>
+              </div>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:14,marginBottom:14,background:C,borderRadius:9,padding:14,border:"1px solid #1e2a3a"}}>
+                <div style={{textAlign:"center",flex:1}}><div style={{fontSize:28}}>{T[liveRes.t1]?.fl}</div><div style={{fontSize:11,fontWeight:700,marginTop:3}}>{liveRes.t1}</div></div>
+                <div style={{textAlign:"center"}}><div style={{fontSize:30,fontWeight:900,letterSpacing:3,color:"#fff"}}>{liveRes.g1}-{liveRes.g2}</div><div style={{fontSize:9,color:"#ff6060"}}>ACTUAL</div></div>
+                <div style={{textAlign:"center",flex:1}}><div style={{fontSize:28}}>{T[liveRes.t2]?.fl}</div><div style={{fontSize:11,fontWeight:700,marginTop:3}}>{liveRes.t2}</div></div>
+              </div>
+
+              {liveRes.sostenible&&<div style={{background:"#ff303010",borderRadius:8,padding:10,marginBottom:14,border:"2px solid #ff6060"}}><div style={{fontSize:9,color:"#ff6060",fontWeight:800,marginBottom:3}}>⚠️ MARCADOR EN RIESGO</div><div style={{fontSize:11,color:"#fca5a5"}}>El equipo que va ganando NO esta dominando el juego. Alto riesgo de cambio de resultado.</div></div>}
+
+              <div style={{background:C,borderRadius:8,padding:10,marginBottom:14,border:"1px solid #1e2a3a"}}>
+                <div style={{fontSize:9,color:"#4a5568",marginBottom:6}}>INDICE DE DOMINIO</div>
+                <div style={{fontSize:13,fontWeight:700,color:liveRes.dom1>0.55?G:liveRes.dom2>0.55?B:Y,marginBottom:8}}>{liveRes.domTxt}</div>
+                <div style={{display:"flex",borderRadius:6,overflow:"hidden",height:10}}>
+                  <div style={{width:`${liveRes.dom1*100}%`,background:G}}/>
+                  <div style={{width:`${liveRes.dom2*100}%`,background:B}}/>
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
+                  <span style={{fontSize:9,color:G}}>{(liveRes.dom1*100).toFixed(0)}%</span>
+                  <span style={{fontSize:9,color:B}}>{(liveRes.dom2*100).toFixed(0)}%</span>
+                </div>
+              </div>
+
+              <div style={{fontSize:9,color:"#4a5568",marginBottom:8}}>PROBABILIDAD RESULTADO FINAL</div>
+              <Fi l={"Gana "+liveRes.t1} v={liveRes.pH} c={G}/>
+              <Fi l="Empate" v={liveRes.pD} c={Y}/>
+              <Fi l={"Gana "+liveRes.t2} v={liveRes.pA} c={B}/>
+            </div>
+
+            <div style={{...card,border:"1px solid #c084fc30"}}>
+              <div style={{fontSize:9,color:P,letterSpacing:2,marginBottom:12}}>MARCADORES FINALES MAS PROBABLES</div>
+              {liveRes.top.map((m,i)=>(
+                <div key={i} style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+                  <span style={{fontSize:13,fontWeight:900,color:"#fff",minWidth:40,textAlign:"center",background:i===0?"#00ff8820":"#1e2a3a",borderRadius:6,padding:"2px 8px",border:i===0?"1px solid #00ff8840":"none"}}>{m.score}</span>
+                  <div style={{flex:1,background:"#1a1f2e",borderRadius:4,height:7,overflow:"hidden"}}>
+                    <div style={{width:`${m.prob*100*4}%`,height:"100%",background:i===0?G:i===1?B:P,borderRadius:4}}/>
+                  </div>
+                  <span style={{fontSize:11,fontWeight:700,color:i===0?G:i===1?B:P,minWidth:40,textAlign:"right"}}>{(m.prob*100).toFixed(1)}%</span>
+                </div>
+              ))}
+            </div>
+          </div>}
+        </div>}
+
         {tab==="grp"&&<div>
           <div style={{display:"flex",flexWrap:"wrap",gap:5,marginBottom:12}}>{Object.keys(GRUPOS).map(g=>(<button key={g} onClick={()=>setGrp(g)} style={{padding:"5px 11px",borderRadius:7,border:"1px solid",cursor:"pointer",fontWeight:700,fontSize:12,background:grp===g?"linear-gradient(135deg,#00ff88,#0088ff)":"#0a0f1e",borderColor:grp===g?"transparent":"#1e2a3a",color:grp===g?"#000":"#94a3b8"}}>G {g}</button>))}</div>
           <div style={card}>
@@ -374,7 +546,7 @@ export default function App(){
 
         {tab==="res2"&&<div>
           <div style={{fontSize:9,color:"#4a5568",letterSpacing:2,marginBottom:12}}>RESULTADOS MUNDIAL 2026</div>
-          {["Jun 11","Jun 12","Jun 13","Jun 14","Jun 15"].map(f=>{const ps=RES.filter(r=>r.f===f);if(!ps.length)return null;const lb={"Jun 11":"JUE 11","Jun 12":"VIE 12","Jun 13":"SAB 13","Jun 14":"DOM 14","Jun 15":"LUN 15"}[f];return <div key={f} style={{marginBottom:12}}><div style={{fontSize:10,color:Y,fontWeight:700,marginBottom:6}}>{lb} JUN</div><div style={{background:"#0a0f1e",border:"1px solid #1e2a3a",borderRadius:10,overflow:"hidden"}}>{ps.map((r,i)=><div key={i} style={{padding:"10px 12px",borderBottom:i<ps.length-1?"1px solid #0d1117":"none",display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:14}}>{T[r.h]?.fl}</span><span style={{flex:1,fontSize:11,fontWeight:600}}>{r.h}</span><span style={{fontSize:16,fontWeight:900,letterSpacing:2,minWidth:48,textAlign:"center"}}>{r.gh}-{r.ga}</span><span style={{flex:1,fontSize:11,fontWeight:600,textAlign:"right"}}>{r.a}</span><span style={{fontSize:14}}>{T[r.a]?.fl}</span></div>)}</div></div>;})}
+          {["Jun 11","Jun 12","Jun 13","Jun 14","Jun 15","Jun 16","Jun 17"].map(f=>{const ps=RES.filter(r=>r.f===f);if(!ps.length)return null;const lb={"Jun 11":"JUE 11","Jun 12":"VIE 12","Jun 13":"SAB 13","Jun 14":"DOM 14","Jun 15":"LUN 15","Jun 16":"MAR 16","Jun 17":"MIE 17"}[f];return <div key={f} style={{marginBottom:12}}><div style={{fontSize:10,color:Y,fontWeight:700,marginBottom:6}}>{lb} JUN</div><div style={{background:"#0a0f1e",border:"1px solid #1e2a3a",borderRadius:10,overflow:"hidden"}}>{ps.map((r,i)=><div key={i} style={{padding:"10px 12px",borderBottom:i<ps.length-1?"1px solid #0d1117":"none",display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:14}}>{T[r.h]?.fl}</span><span style={{flex:1,fontSize:11,fontWeight:600}}>{r.h}</span><span style={{fontSize:16,fontWeight:900,letterSpacing:2,minWidth:48,textAlign:"center"}}>{r.gh}-{r.ga}</span><span style={{flex:1,fontSize:11,fontWeight:600,textAlign:"right"}}>{r.a}</span><span style={{fontSize:14}}>{T[r.a]?.fl}</span></div>)}</div></div>;})}
         </div>}
 
       </div>
