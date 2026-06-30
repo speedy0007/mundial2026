@@ -1,5 +1,5 @@
 import{useState}from"react";
-const VERSION="v4.0 • 30 Jun 2026";
+const VERSION="v4.2 • 30 Jun 2026";
 
 // Forma previa al mundial (últimos 5 partidos — W=ganó, D=empató, L=perdió)
 const PREFORMA={
@@ -108,7 +108,7 @@ function calcPuntosPre(eq){
 const teams=Object.keys(T).sort();
 function pois(l,k){let p=Math.exp(-l);for(let i=1;i<=k;i++)p*=l/i;return p;}
 
-function calc(s1,s2,q1,qx,q2,hj,hw1,hd,hw2,arb,presion1,presion2){
+function calc(s1,s2,q1,qx,q2,hj,hw1,hd,hw2,arb,esElim){
   // BASE: xG proporcional a defensa relativa (2.6 = promedio goles/partido mundial)
   const totalD=s1.d+s2.d;
   let l1=s1.xG*(s1.d/totalD)*2.6;
@@ -143,11 +143,10 @@ function calc(s1,s2,q1,qx,q2,hj,hw1,hd,hw2,arb,presion1,presion2){
   // AJUSTE H2H
   if(hj>=3){const r1=hw1/hj,r2=hw2/hj;l1*=(1+(r1-r2)*0.20);l2*=(1+(r2-r1)*0.20);}
 
-  // AJUSTE presion de clasificacion
-  if(presion1==="ganar"){l1*=1.12;l2*=1.06;}
-  else if(presion1==="eliminado"){l1*=1.08;}
-  if(presion2==="ganar"){l2*=1.12;l1*=1.06;}
-  else if(presion2==="eliminado"){l2*=1.08;}
+  // AJUSTE eliminacion directa: AMBOS equipos necesitan ganar (no hay opcion "normal")
+  // Sube ambos lambdas por la urgencia, pero menos que en fase de grupos porque
+  // tambien aumenta la cautela tactica (nadie quiere arriesgar y quedar expuesto a contragolpe)
+  if(esElim){l1*=1.06;l2*=1.06;}
 
   // AJUSTE arbitro
   const ra=ARBITROS[arb]||0;
@@ -155,7 +154,8 @@ function calc(s1,s2,q1,qx,q2,hj,hw1,hd,hw2,arb,presion1,presion2){
   else if(ra===-1){l1*=0.94;l2*=0.94;}
 
   // Solo minimo, SIN techo fijo - cada partido refleja sus propios datos
-  l1=Math.max(0.3,l1);l2=Math.max(0.3,l2);
+  // Techo realista: en futbol real es extremadamente raro superar 4 goles esperados
+  l1=Math.max(0.3,Math.min(4,l1));l2=Math.max(0.3,Math.min(4,l2));
 
   let pH=0,pD=0,pA=0,m15=0,m25=0,btts=0;
   for(let i=0;i<=6;i++)for(let j=0;j<=6;j++){const p=pois(l1,i)*pois(l2,j);if(i>j)pH+=p;else if(i===j)pD+=p;else pA+=p;if(i+j>1)m15+=p;if(i+j>2)m25+=p;if(i>0&&j>0)btts+=p;}
@@ -269,8 +269,7 @@ export default function App(){
   const[hd,setHd]=useState("");
   const[hw2,setHw2]=useState("");
   const[arb,setArb]=useState("Sin especificar");
-  const[pr1,setPr1]=useState("normal");
-  const[pr2,setPr2]=useState("normal");
+  const[esElim,setEsElim]=useState(false);
   const[grp,setGrp]=useState("A");
   const[res,setRes]=useState(null);
   const[mc,setMc]=useState(null);
@@ -303,7 +302,7 @@ export default function App(){
     if(t1===t2)return;
     setLoad(true);
     setTimeout(()=>{
-      const r=calc(s1,s2,+q1,+qx,+q2,+hj,+hw1,+hd,+hw2,arb,pr1,pr2);
+      const r=calc(s1,s2,+q1,+qx,+q2,+hj,+hw1,+hd,+hw2,arb,esElim);
       const sim=monteCarlo(r.l1,r.l2,10000);
       // Combinar ambos metodos: promedio 50/50
       const cH=(r.pH+sim.pH)/2;
@@ -317,8 +316,9 @@ export default function App(){
       // Marcador del Monte Carlo (más probable de simulacion)
       const topScore=sim.top[0]?.score||`${r.sh}-${r.sa}`;
       const cf=Math.max(combinado.pH,combinado.pD,combinado.pA)>0.55?"ALTA":Math.max(combinado.pH,combinado.pD,combinado.pA)>0.42?"MEDIA":"BAJA";
-      const mj=combinado.pH>0.55?"Victoria "+t1:combinado.pA>0.55?"Victoria "+t2:(combinado.pH+combinado.pD)>0.75?"Doble 1X":(combinado.pA+combinado.pD)>0.75?"Doble X2":r.m15>0.72?"Mas 1.5 goles":"Evalua con cuotas";
-      setRes({...r,...combinado,cf,mj,topScore,t1,t2});
+      let mj=combinado.pH>0.55?"Victoria "+t1:combinado.pA>0.55?"Victoria "+t2:(combinado.pH+combinado.pD)>0.75?"Doble 1X":(combinado.pA+combinado.pD)>0.75?"Doble X2":r.m15>0.72?"Mas 1.5 goles":"Evalua con cuotas";
+      if(esElim&&combinado.pD>0.30){mj="Posible definicion por penales";}
+      setRes({...r,...combinado,cf,mj,topScore,t1,t2,esElim});
       setMc(sim);
       setLoad(false);
     },300);
@@ -382,24 +382,14 @@ export default function App(){
               <div><div style={{fontSize:8,color:B,marginBottom:2}}>Vic {t2.slice(0,4)}</div><input type="number" min="0" placeholder="0" value={hw2} onChange={e=>setHw2(e.target.value)} style={inp}/></div>
             </div>
 
-            <div style={{fontSize:9,color:"#ff6060",fontWeight:700,marginBottom:8}}>PRESION DE CLASIFICACION</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
-              <div>
-                <div style={{fontSize:9,color:"#94a3b8",marginBottom:4}}>{t1.slice(0,10)}</div>
-                <select value={pr1} onChange={e=>setPr1(e.target.value)} style={{...sel,fontSize:11}}>
-                  <option value="normal">Normal</option>
-                  <option value="ganar">Necesita ganar</option>
-                  <option value="eliminado">Ya eliminado</option>
-                </select>
-              </div>
-              <div>
-                <div style={{fontSize:9,color:"#94a3b8",marginBottom:4}}>{t2.slice(0,10)}</div>
-                <select value={pr2} onChange={e=>setPr2(e.target.value)} style={{...sel,fontSize:11}}>
-                  <option value="normal">Normal</option>
-                  <option value="ganar">Necesita ganar</option>
-                  <option value="eliminado">Ya eliminado</option>
-                </select>
-              </div>
+            <div style={{marginBottom:12}}>
+              <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",background:esElim?"#ff303010":C,border:`1px solid ${esElim?"#ff6060":"#1e2a3a"}`,borderRadius:8,padding:"10px 12px"}}>
+                <input type="checkbox" checked={esElim} onChange={e=>setEsElim(e.target.checked)} style={{width:16,height:16}}/>
+                <div>
+                  <div style={{fontSize:11,fontWeight:700,color:esElim?"#ff6060":"#94a3b8"}}>⚔️ Eliminación directa</div>
+                  <div style={{fontSize:9,color:"#4a5568"}}>16avos, octavos, cuartos, etc — ambos necesitan ganar, puede ir a penales</div>
+                </div>
+              </label>
             </div>
 
             <div style={{fontSize:9,color:"#94a3b8",fontWeight:700,marginBottom:8}}>ARBITRO (opcional)</div>
@@ -438,7 +428,7 @@ export default function App(){
                 <div style={{textAlign:"center",flex:1}}><div style={{fontSize:28}}>{s2.fl}</div><div style={{fontSize:11,fontWeight:700,marginTop:3}}>{t2}</div><div style={{display:"flex",gap:2,justifyContent:"center",marginTop:3}}>{f2.fm.map((f,i)=><FT key={i} r={f}/>)}</div></div>
               </div>
               <Fi l={"1 "+t1} v={res.pH} c={G}/>
-              <Fi l="X Empate" v={res.pD} c={Y}/>
+              <Fi l={res.esElim?"X Empate (va a penales)":"X Empate"} v={res.pD} c={Y}/>
               <Fi l={"2 "+t2} v={res.pA} c={B}/>
             </div>
             <div style={card}>
@@ -555,7 +545,7 @@ export default function App(){
                 {p.j?(
                   <span style={{fontSize:13,fontWeight:900,padding:"2px 10px",background:"#1e2a3a",borderRadius:6,minWidth:60,textAlign:"center"}}>{p.r}</span>
                 ):(
-                  <button onClick={()=>{setT1(p.h);setT2(p.a);setTab("pred");setRes(null);}} style={{padding:"3px 10px",borderRadius:6,border:`1px solid ${G}20`,background:`${G}08`,color:G,fontSize:10,cursor:"pointer",fontWeight:700,minWidth:60}}>Predecir</button>
+                  <button onClick={()=>{setT1(p.h);setT2(p.a);setEsElim(true);setTab("pred");setRes(null);}} style={{padding:"3px 10px",borderRadius:6,border:`1px solid ${G}20`,background:`${G}08`,color:G,fontSize:10,cursor:"pointer",fontWeight:700,minWidth:60}}>Predecir</button>
                 )}
                 <span style={{flex:1,fontSize:11,fontWeight:p.w===p.a?800:600,color:p.j&&p.w!==p.a?"#4a5568":"#e2e8f0",textAlign:"right"}}>{p.a}</span>
                 <span style={{fontSize:14}}>{T[p.a]?.fl}</span>
